@@ -1,0 +1,69 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "installation": {
+    "version": "19.6.2",
+    "plugins": {
+      "@nx/eslint": "19.6.2"
+    }
+  },
+  "targetDefaults": {
+    "test": {
+      "dependsOn": [
+        "^test"
+      ],
+      "cache": true
+    },
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "{projectRoot}/dist"
+      ],
+      "cache": true
+    },
+    "lint": {
+      "dependsOn": [
+        "^lint"
+      ]
+    },
+    "docs": {
+      "dependsOn": [
+        "^docs"
+      ],
+      "outputs": [
+        "{projectRoot}/docs"
+      ],
+      "cache": true
+    },
+    "test:all": {
+      "dependsOn": [
+        "^test:all"
+      ]
+    },
+    "format": {
+      "dependsOn": [
+        "^format"
+      ]
+    },
+    "typecheck": {
+      "cache": true
+    },
+    "fix": {
+      "cache": true
+    }
+  },
+  "defaultBase": "main",
+  "plugins": [
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "testTargetName": "test",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "serveStaticTargetName": "serve-static"
+      }
+    }
+  ]
+}

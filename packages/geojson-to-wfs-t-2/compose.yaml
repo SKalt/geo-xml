@@ -1,0 +1,8 @@
+version: "3"
+services:
+  geoserver:
+    image: docker.osgeo.org/geoserver:2.24.1 # see https://github.com/geoserver/docker
+    ports:
+      - "8080:8080"
+  # TODO: set admin/password
+  # TODO: figure out how to run WFS-T integration tests

@@ -1,0 +1,16 @@
+<wfs:Transaction xmlns:my_namespace="https://example.com/namespace_defn.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:gml="http://www.opengis.net/gml/3.2"
+  xmlns:wfs="http://www.opengis.net/wfs/2.0" xsi:schemaLocation="http://www.opengis.net/wfs/2.0
+http://schemas.opengis.net/wfs/2.0/wfs.xsd" service="WFS" version="2.0.0">
+  <wfs:Insert>
+    <my_namespace:my_lyr gml:id="my_lyr.feature_id">
+      <my_namespace:geom>
+        <gml:Point>
+          <gml:pos>0 0</gml:pos>
+        </gml:Point>
+      </my_namespace:geom>
+      <my_namespace:place_name>null island</my_namespace:place_name>
+    </my_namespace:my_lyr>
+  </wfs:Insert>
+</wfs:Transaction>

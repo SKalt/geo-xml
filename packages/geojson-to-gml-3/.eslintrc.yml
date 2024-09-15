@@ -1,0 +1,4 @@
+env:
+  es6: true
+# FIXME: add prettier config
+extends: "plugin:prettier/recommended"

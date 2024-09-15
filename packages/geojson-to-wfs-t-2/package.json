@@ -1,0 +1,45 @@
+{
+  "name": "geojson-to-wfs-t-2",
+  "version": "1.5.1",
+  "description": "A library to convert geojson features to WFS-T-2.0 xml strings.",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "docs": "node ./make-docs.js",
+    "prebuild": "pnpm run docs",
+    "build": "vite build",
+    "test": "vitest"
+  },
+  "keywords": [
+    "xml",
+    "wfs",
+    "wfs-t",
+    "transaction",
+    "geoserver",
+    "OGC",
+    "gis"
+  ],
+  "author": "Steven Kalt",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skalt/geox.git",
+    "directory": "packages/geojson-to-wfs-t-2"
+  },
+  "devDependencies": {
+    "@types/geojson": "^7946.0.14",
+    "esbuild": "^0.20.2",
+    "eslint": "^4.19.1",
+    "jsdoc-to-markdown": "^3.0.4",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5",
+    "uglify-js": "^3.17.4",
+    "vitest": "^1.6.0",
+    "xsd-schema-validator": "^0.5.0"
+  },
+  "dependencies": {
+    "geojson-to-gml-3": "workspace:geojson-to-gml-3",
+    "minimxml": "workspace:minimxml"
+  }
+}
