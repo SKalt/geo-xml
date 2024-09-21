@@ -1,11 +1,13 @@
-version: "0.2"
+version: '0.2'
 language: en
 words:
   - apos
+  - doctests
   - epsg
   - geometrycollection
   - geoserver
   - geospatial
+  - gml
   - linebreak
   - minimxml
   - minixml
@@ -14,3 +16,5 @@ words:
   - multilinestring
   - multipoint
   - multipolygon
+  - wfs
+  - fes
