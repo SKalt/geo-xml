@@ -1,11 +1,11 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
-
+import { doctest } from 'vite-plugin-doctest';
 export default defineConfig({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/packages/geojson-to-gml-3.2.1',
 
-  plugins: [],
+  plugins: [doctest({})],
 
   // Configuration for building your library.
   // See: https://vitejs.dev/guide/build.html#library-mode
@@ -28,5 +28,8 @@ export default defineConfig({
       // External packages that should not be bundled into your library.
       external: [],
     },
+  },
+  test: {
+    includeSource: ['./src/**/*.[jt]s'],
   },
 });

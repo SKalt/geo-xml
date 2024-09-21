@@ -38,7 +38,7 @@ export const GML = 'http://www.opengis.net/gml/3.2';
  */
 export type Converter<Geom extends Geometry = Geometry> = (
   geom: Geom,
-  params: Params,
+  params?: Params,
   namespaces?: Namespaces | null,
 ) => XmlElements;
 
@@ -56,7 +56,11 @@ type _Converter<Geom extends Geometry = Geometry> = (
 const withGmlNamespace = <Geom extends Geometry>(
   fn: _Converter<Geom>,
 ): Converter<Geom> => {
-  return (geom: Geom, params: Params, namespaces?: Namespaces | null) => {
+  return (
+    geom: Geom,
+    params: Params = {},
+    namespaces: Namespaces | null = null,
+  ) => {
     namespaces = namespaces ?? new Namespaces();
     const { ns = 'gml' as Name } = params;
     const gml = namespaces.getOrInsert(ns, GML as AttrValue);
@@ -222,12 +226,21 @@ const gmlPoint: CoordinateConverter<Point> = (
 };
 
 /**
- * Converts an input geojson Point geometry to GML
- * @function
- * @param geom the {@link Point} to render to GML
- * @param params @see Params
- * @returns a GML string representing the input Point
- */
+Converts an input geojson Point geometry to GML
+@function
+@param geom the {@link Point} to render to GML
+@param params @see Params
+@returns a GML string representing the input Point
+ @example
+```ts @import.meta.vitest
+const pt: Point = { type: 'Point', coordinates: [102.0, 0.5] };
+expect(point(pt)).toBe(
+  `<gml:Point>`
+  +`<gml:pos>102 0.5</gml:pos>`
+  +`</gml:Point>`
+);
+```
+*/
 export const point: Converter<Point> = withGmlNamespace<Point>(
   useCoords(gmlPoint),
 );
@@ -270,24 +283,45 @@ const gmlLineString: CoordinateConverter<LineString> = (
   );
 };
 
-/** Convert an input geojson LineString geometry to gml
- * @function
- * @param line the coordinates member of the geojson geometry
- * @param gmlId the gml:id
- * @param params optional parameters; @see {@link Params}
- * @returns a string containing gml representing the input geometry
- */
+/**
+Convert an input geojson LineString geometry to gml
+@function
+@param line the coordinates member of the geojson geometry
+@param gmlId the gml:id
+@param params optional parameters; @see {@link Params}
+@returns a string containing gml representing the input geometry
+@example
+```ts @import.meta.vitest
+const line: LineString = {
+  type: 'LineString',
+  coordinates: [
+    [102.0, 0.0],
+    [103.0, 1.0],
+    [104.0, 0.0],
+    [105.0, 1.0],
+  ],
+};
+expect(lineString(line)).toBe(''
+  + `<gml:LineString>`
+  +   `<gml:posList>`
+  +    `102 0 103 1 104 0 105 1`
+  +   `</gml:posList>`
+  + `</gml:LineString>`
+);
+```
+*/
 export const lineString: Converter<LineString> = withGmlNamespace<LineString>(
   useCoords(gmlLineString),
 );
 
-/** Construct a gml:LinearRing from an array of coordinates
- * @function
- * @param coords the coordinates member of the geojson geometry
- * @param gmlId the gml:id
- * @param params optional parameters
- * @returns a string containing gml representing the input geometry
- */
+/**
+Construct a gml:LinearRing from an array of coordinates
+@function
+@param coords the coordinates member of the geojson geometry
+@param gmlId the gml:id
+@param params optional parameters
+@returns a string containing gml representing the input geometry
+*/
 const gmlLinearRing: CoordinateConverter<LineString> = (
   gml: Namespace,
   coords: LineString['coordinates'],
@@ -332,11 +366,42 @@ const gmlPolygon: CoordinateConverter<Polygon> = (
 };
 
 /**
- * Converts an input geojson Polygon geometry to gml
- * @function
- * @param geom the {@link Polygon} to convert to gml
- * @param params @see Params
- * @returns a string containing gml representing the input geometry
+Converts an input geojson Polygon geometry to gml
+@function
+@param geom the {@link Polygon} to convert to gml
+@param params @see Params
+@returns a string containing gml representing the input geometry
+
+@example
+```ts @import.meta.vitest
+const poly: Polygon = {
+  type: 'Polygon',
+  coordinates: [
+    [
+      [100.0, 0.0],
+      [101.0, 0.0],
+      [101.0, 1.0],
+      [100.0, 1.0],
+      [100.0, 0.0],
+    ],
+  ],
+};
+expect(polygon(poly)).toBe(
+    `<gml:Polygon>`
+  +   `<gml:exterior>`
+  +     `<gml:LinearRing>`
+  +       `<gml:posList>`
+  +          `100 0`
+  +         ` 101 0`
+  +         ` 101 1`
+  +         ` 100 1`
+  +          ` 100 0`
+  +       `</gml:posList>`
+  +      `</gml:LinearRing>`
+  +   `</gml:exterior>`
+  + `</gml:Polygon>`
+)
+```
  */
 export const polygon: Converter<Polygon> = withGmlNamespace<Polygon>(
   useCoords(gmlPolygon),
@@ -349,12 +414,35 @@ const gmlMultiPoint: _Converter<MultiPoint> = multi<MultiPoint>(
   gmlPoint,
 );
 /**
- * Converts an input geojson MultiPoint geometry to gml
- * @function
- * @param geom the {@link MultiPoint} to convert to gml
- * @param params @see Params
- * @returns a string containing gml representing the input geometry
- */
+Converts an input geojson MultiPoint geometry to gml
+@function
+@param geom the {@link MultiPoint} to convert to gml
+@param params @see Params
+@returns a string containing gml representing the input geometry
+
+@example
+```ts @import.meta.vitest
+const multiPt: MultiPoint = {
+  type: 'MultiPoint',
+  coordinates: [
+    [100.0, 0.0],
+    [101.0, 1.0],
+  ],
+};
+expect(multiPoint(multiPt)).toBe(''
+  + `<gml:MultiPoint>`
+  +   `<gml:pointMembers>`
+  +     `<gml:Point>`
+  +`<gml:pos>100 0</gml:pos>`
+  +`</gml:Point>`
+  +     `<gml:Point>`
+  +`<gml:pos>101 1</gml:pos>`
+  +`</gml:Point>`
+  +   `</gml:pointMembers>`
+  + `</gml:MultiPoint>`
+);
+```
+*/
 export const multiPoint: Converter<MultiPoint> =
   withGmlNamespace<MultiPoint>(gmlMultiPoint);
 
@@ -366,12 +454,41 @@ const gmlMultiLineString: _Converter<MultiLineString> = multi<MultiLineString>(
 );
 
 /**
- * Converts an input geojson MultiLineString geometry to gml
- * @function
- * @param coords the coordinates member of the geojson geometry
- * @param params @see Params
- * @returns a string containing gml representing the input geometry
- */
+Converts an input geojson MultiLineString geometry to gml
+@function
+@param coords the coordinates member of the geojson geometry
+@param params @see Params
+@returns a string containing gml representing the input geometry
+
+@example
+```ts @import.meta.vitest
+const geom: MultiLineString = {
+  type: 'MultiLineString',
+  coordinates: [
+    [
+      [100.0, 0.0],
+      [101.0, 1.0],
+    ],
+    [
+      [102.0, 2.0],
+      [103.0, 3.0],
+    ],
+  ],
+};
+expect(multiLineString(geom)).toBe(''
+  + `<gml:MultiCurve>`
+  +   `<gml:curveMembers>`
+  +     `<gml:LineString>`
+  +       `<gml:posList>100 0 101 1</gml:posList>`
+  +     `</gml:LineString>`
+  +     `<gml:LineString>`
+  +       `<gml:posList>102 2 103 3</gml:posList>`
+  +     `</gml:LineString>`
+  +   `</gml:curveMembers>`
+  + `</gml:MultiCurve>`
+);
+```
+*/
 export const multiLineString: Converter<MultiLineString> =
   withGmlNamespace<MultiLineString>(gmlMultiLineString);
 
@@ -383,12 +500,72 @@ const gmlMultiPolygon: _Converter<MultiPolygon> = multi<MultiPolygon>(
 );
 
 /**
- * Converts an input geojson MultiPolygon geometry to GML
- * @function
- * @param geom the {@link MultiPolygon} to convert to GML
- * @param params @see Params
- * @returns a string containing GML representing the input geometry
- */
+Converts an input geojson `MultiPolygon` geometry to GML
+@function
+@param geom the {@link MultiPolygon} to convert to GML
+@param params @see Params
+@returns a string containing GML representing the input geometry
+
+@example
+```ts @import.meta.vitest
+const geom: MultiPolygon = {type: 'MultiPolygon',
+  coordinates: [
+    [
+      [
+        [102.0, 2.0],
+        [103.0, 2.0],
+        [103.0, 3.0],
+        [102.0, 3.0],
+        [102.0, 2.0],
+      ],
+    ],
+    [
+      [
+        [100.0, 0.0],
+        [101.0, 0.0],
+        [101.0, 1.0],
+        [100.0, 1.0],
+        [100.0, 0.0],
+      ],
+      [
+        [100.2, 0.2],
+        [100.8, 0.2],
+        [100.8, 0.8],
+        [100.2, 0.8],
+        [100.2, 0.2],
+      ],
+    ],
+  ],
+};
+expect(multiPolygon(geom)).toBe(''
+  + `<gml:MultiSurface>`
+  +   `<gml:surfaceMembers>`
+  +     `<gml:Polygon>`
+  +      `<gml:exterior>`
+  +        `<gml:LinearRing>`
+  +           `<gml:posList>102 2 103 2 103 3 102 3 102 2</gml:posList>`
+  +         `</gml:LinearRing>`
+  +       `</gml:exterior>`
+  +     `</gml:Polygon>`
+  +     `<gml:Polygon>`
+  +       `<gml:exterior>`
+  +         `<gml:LinearRing>`
+  +           `<gml:posList>100 0 101 0 101 1 100 1 100 0</gml:posList>`
+  +          `</gml:LinearRing>`
+  +         `</gml:exterior>`
+  +       `<gml:interior>`
+  +        `<gml:LinearRing>`
+  +         `<gml:posList>`
+  +           `100.2 0.2 100.8 0.2 100.8 0.8 100.2 0.8 100.2 0.2`
+  +          `</gml:posList>`
+  +         `</gml:LinearRing>`
+  +        `</gml:interior>`
+  +     `</gml:Polygon>`
+  +   `</gml:surfaceMembers>`
+  + `</gml:MultiSurface>`
+)
+```
+*/
 export const multiPolygon = withGmlNamespace<MultiPolygon>(gmlMultiPolygon);
 
 const gmlGeometry = (
@@ -430,12 +607,39 @@ const gmlGeometryCollection: _Converter<GeometryCollection> =
 // see file://./../spec/geometryBasic0d1d.xsd#GeometryArrayPropertyType
 
 /**
- * Converts an input geojson GeometryCollection geometry to GML
- * @function
- * @param geom the {@link GeometryCollection} to convert to GML
- * @param params @see Params
- * @returns a string containing GML representing the input geometry
- */
+Converts an input geojson GeometryCollection geometry to GML
+@function
+@param geom the {@link GeometryCollection} to convert to GML
+@param params @see Params
+@returns a string containing GML representing the input geometry\
+@example
+```ts @import.meta.vitest
+const geom: GeometryCollection = {
+  type: 'GeometryCollection',
+  geometries: [
+    { type: 'Point', coordinates: [100.0, 0.0] },
+    {
+      type: 'LineString',
+      coordinates: [
+        [101.0, 0.0],
+        [102.0, 1.0],
+      ],
+    },
+  ],
+};
+
+expect(geometryCollection(geom)).toBe(''
+  + `<gml:MultiGeometry>`
+  +  `<gml:geometryMembers>`
+  +    `<gml:Point><gml:pos>100 0</gml:pos></gml:Point>`
+  +    `<gml:LineString>`
+  +     `<gml:posList>101 0 102 1</gml:posList>`
+  +    `</gml:LineString>`
+  +   `</gml:geometryMembers>`
+  + `</gml:MultiGeometry>`
+)
+```
+*/
 export const geometryCollection: Converter<GeometryCollection> =
   withGmlNamespace<GeometryCollection>(gmlGeometryCollection);
 
