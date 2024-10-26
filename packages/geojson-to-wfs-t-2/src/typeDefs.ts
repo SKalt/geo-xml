@@ -1,29 +1,31 @@
 // TODO: rename to params.ts
-import { type Feature } from "geojson";
+import { type Feature } from 'geojson';
+import { Name, XmlElements } from 'packages/minimxml/src';
+import { FES } from './filter';
 
-export type SrsNameParam = {
+export type SrsNameOpt = {
   /** srsName, as specified at
    * {@link http://docs.opengeospatial.org/is/09-025r2/09-025r2.html#66 | OGC 09-025r2 § 7.6.5.5}.
    * If undefined, the implicit default is `urn:ogc:def:crs:OGC::CRS84`, which is
    * the projection of all GeoJSON (see {@link https://datatracker.ietf.org/doc/html/rfc7946#section-4})
    */
-  srsName?: string;
+  srsName: string;
 };
 
-export type InputFormatParam = {
+export type InputFormatOpt = {
   /** inputFormat, as specified at
    * [OGC 09-025r2 § 7.6.5.4]{@link http://docs.opengeospatial.org/is/09-025r2/09-025r2.html#65}. */
-  inputFormat?: string;
+  inputFormat: string;
 };
 
-export type HandleParam = {
+export type HandleOpt = {
   /** handle parameter, as specified at
    * {@link http://docs.opengeospatial.org/is/09-025r2/09-025r2.html#44 | OGC 09-025r2 § 7.6.2.6} */
-  handle?: string;
+  handle: string;
 };
-export type GeometryNamesParam = {
+export type GeometryNamesOpt = {
   /** the name of the feature geometry field. */
-  geometryNames?: string[];
+  geometryName: Name;
   // TODO: make Record<string, _>
 };
 export type LayerParam = {
@@ -31,22 +33,18 @@ export type LayerParam = {
   layer?: string;
 };
 
+export type FilterParam = {
+  filter: XmlElements<typeof FES>;
+};
+
 /**  An object containing optional named parameters. */
 export type Params = {
-  /** an xml namespace alias. */
-  ns?: string;
-
-  /** an object mapping feature field names to
-   * feature properties */
-  properties?: Feature["properties"];
-  /** feature id */
-  id?: string;
-  // TODO: deprecate in favor of Params.properties
-
-  /** a fes:Filter. */
-  filter?: string;
+  // TODO: either formalize a shared convertProperty() option or this hack
+  // /** an object mapping feature field names to
+  //  * feature properties */
+  // properties?: Feature['properties'];
 };
-export type TypeNameParam = {
+export type TypeNameOpt = {
   /** feature type within
    * its namespace. See {@link http://docs.opengeospatial.org/is/09-025r2/09-025r2.html#90 | 09-025r2 § 7.9.2.4.1} */
   typeName?: string;
@@ -56,7 +54,7 @@ export type TypeNameParam = {
  * An object containing optional named parameters for a transaction in addition
  * to parameters used elsewhere.
  */
-export type TransactionParams = Params & {
+export type TransactionOpts = {
   /**
    * lockId parameter, as specified at
    * {@link http://docs.opengeospatial.org/is/09-025r2/09-025r2.html#277 | OGC 09-025r2 § 15.2.3.1.2}

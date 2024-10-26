@@ -28,7 +28,10 @@ import {
   type XmlElements,
 } from 'minimxml/src';
 
-export const GML = 'http://www.opengis.net/gml/3.2';
+export const GML = 'http://www.opengis.net/gml/3.2' as const;
+
+// TODO: document
+export type Gml = XmlElements<typeof GML>;
 
 /**
  The signature of all public geojson-to-gml conversion functions.
@@ -38,16 +41,16 @@ export const GML = 'http://www.opengis.net/gml/3.2';
  */
 export type Converter<Geom extends Geometry = Geometry> = (
   geom: Geom,
-  params?: Params,
+  params: Params,
   namespaces?: Namespaces | null,
-) => XmlElements;
+) => Gml;
 
 /** @private conversion interface */
 type _Converter<Geom extends Geometry = Geometry> = (
   gml: Namespace,
   geom: Geom,
   params: Params,
-) => XmlElements;
+) => Gml;
 
 /**
  * convert a (gml: Namespace, ...) => XmlElements function to a
@@ -73,7 +76,7 @@ type CoordinateConverter<Geom extends Exclude<Geometry, GeometryCollection>> = (
   gml: Namespace,
   geom: Geom['coordinates'],
   params: Params,
-) => XmlElements;
+) => Gml;
 
 const useCoords =
   <Geom extends Exclude<Geometry, GeometryCollection>>(
@@ -82,20 +85,35 @@ const useCoords =
   (gml, geom: Geom, params) =>
     fn(gml, geom.coordinates, params);
 
-/** Optional parameters for conversion of geojson to gml geometries */
-export type Params = {
+type NsParam = {
   /** the qualified name that points to the xmlns with the value of "http://www.opengis.net/gml/3.2" */
-  ns?: Name;
-  gmlId?: string | number | null;
+  ns: Name;
+};
+type IdParam = {
+  /** the gml:id */
+  gmlId: string | number | bigint | null;
+};
+type CoordOrderParam = {
   /** defaults to longitude, latitude */
-  order?: CoordinateOrder;
+  order: CoordinateOrder;
+};
+type SrsNameParam = {
   /** a string specifying SRS, e.g. 'EPSG:4326'. Only applies to multigeometries. */
-  srsName?: string;
+  srsName: string;
+};
+type GmlIdsParam = {
   /** an array of number/string `gml:ids` of member geometries, if any. */
-  gmlIds?: Array<number | string>;
+  gmlIds: Array<IdParam['gmlId']>;
+};
+
+type SrsDimensionParam = {
   /** the dimensionality of each coordinate, i.e. 2 or 3. */
   srsDimension?: number; // used to be |string
 };
+/** Optional parameters for conversion of geojson to gml geometries */
+export type Params = Partial<
+  NsParam & IdParam & CoordOrderParam & SrsNameParam & SrsDimensionParam
+> & {};
 
 /**
  * geojson coordinates are in longitude/easting, latitude/northing [,elevation]
@@ -137,9 +155,8 @@ export type MultiGeometry =
   | MultiPolygon
   | GeometryCollection;
 
-type Associate<G extends Geometry, Kind, Value> = G extends Kind
-  ? Value
-  : never;
+type Associate<G extends Geometry, Kind, Value> =
+  G extends Kind ? Value : never;
 
 type GmlName<G extends MultiGeometry> =
   | Associate<G, MultiPoint, 'MultiPoint'>
@@ -161,7 +178,7 @@ type ConverterFn<Collection extends MultiGeometry> = (
   gml: Namespace,
   geom: MemberKind<Collection>,
   params: Params,
-) => XmlElements;
+) => Gml;
 
 /**
  * A handler to compile geometries to multigeometries
@@ -180,13 +197,16 @@ function multi<Collection extends MultiGeometry>(
   key: MemberKey<Collection>,
   renderMember: ConverterFn<Collection>,
 ): _Converter<Collection> {
-  return (gml: Namespace, geom: Collection, params: Params = {}) => {
-    let { srsName, gmlId = null, gmlIds = [], ...rest } = params;
+  return (
+    gml: Namespace<any, typeof GML>,
+    geom: Collection,
+    params: Params & Partial<GmlIdsParam> = {},
+  ) => {
+    let { srsName = null, gmlId = null, gmlIds = [], ...rest } = params;
 
     return tag(
       gml.qualify(elementName as string as Name),
       attrs({ srsName, [gml.qualify('id' as Name)]: gmlId }),
-
       tag(
         gml.qualify(memberElementName as string as Name),
         [],
@@ -198,20 +218,22 @@ function multi<Collection extends MultiGeometry>(
           }),
         ),
       ),
-    );
+    ) as Gml;
   };
 }
 
 const gmlPoint: CoordinateConverter<Point> = (
   gml: Namespace,
   coordinates: Point['coordinates'],
-  params: Params = {},
+  params: Partial<
+    IdParam & SrsDimensionParam & SrsNameParam & CoordOrderParam
+  > = {},
 ) => {
   let {
     order = CoordinateOrder.LON_LAT,
-    srsName,
-    srsDimension,
-    gmlId,
+    srsName = null,
+    srsDimension = null,
+    gmlId = null,
   } = params;
   return tag(
     gml.qualify('Point' as Name),
@@ -220,9 +242,9 @@ const gmlPoint: CoordinateConverter<Point> = (
     tag(
       gml.qualify('pos' as Name),
       attrs({ srsDimension }),
-      coordOrder(order)(coordinates).join(' ') as XmlElements,
+      coordOrder(order)(coordinates).join(' ') as XmlElements<''>,
     ),
-  );
+  ) as Gml;
 };
 
 /**
@@ -248,7 +270,7 @@ export const point: Converter<Point> = withGmlNamespace<Point>(
 const gmlLineStringCoords = (
   coordinates: LineString['coordinates'],
   order: CoordinateOrder = CoordinateOrder.LON_LAT,
-) => {
+): XmlElements<''> => {
   let result = '';
   const _order = coordOrder(order);
   for (let pos of coordinates) {
@@ -256,17 +278,19 @@ const gmlLineStringCoords = (
       result += `${n} `;
     }
   }
-  return result.trim();
+  return result.trim() as XmlElements<''>;
 };
 
 const gmlLineString: CoordinateConverter<LineString> = (
-  gml: Namespace,
+  gml: Namespace<any, typeof GML>,
   coordinates: LineString['coordinates'],
-  params: Params = {},
-): XmlElements => {
+  params: Partial<
+    SrsDimensionParam & SrsNameParam & IdParam & CoordOrderParam
+  > = {},
+): Gml => {
   let {
-    srsName,
-    srsDimension,
+    srsName = null,
+    srsDimension = null,
     gmlId = null,
     order = CoordinateOrder.LON_LAT,
   } = params;
@@ -278,9 +302,9 @@ const gmlLineString: CoordinateConverter<LineString> = (
     tag(
       gml.qualify('posList' as Name),
       attrs({ srsDimension }),
-      gmlLineStringCoords(coordinates, order) as XmlElements,
+      gmlLineStringCoords(coordinates, order) as XmlElements<''>,
     ),
-  );
+  ) as Gml;
 };
 
 /**
@@ -318,18 +342,19 @@ export const lineString: Converter<LineString> = withGmlNamespace<LineString>(
 Construct a gml:LinearRing from an array of coordinates
 @function
 @param coords the coordinates member of the geojson geometry
-@param gmlId the gml:id
 @param params optional parameters
 @returns a string containing gml representing the input geometry
 */
 const gmlLinearRing: CoordinateConverter<LineString> = (
-  gml: Namespace,
+  gml: Namespace<any, typeof GML>,
   coords: LineString['coordinates'],
-  params: Params = {},
-): XmlElements => {
+  params: Partial<
+    IdParam & SrsNameParam & SrsDimensionParam & CoordOrderParam
+  > = {},
+): Gml => {
   let {
-    srsName,
-    srsDimension,
+    srsName = null,
+    srsDimension = null,
     gmlId = null,
     order = CoordinateOrder.LON_LAT,
   } = params;
@@ -341,17 +366,17 @@ const gmlLinearRing: CoordinateConverter<LineString> = (
     tag(
       gml.qualify('posList' as Name),
       attrs({ srsDimension }),
-      coords.map((e) => _order(e).join(' ')).join(' ') as XmlElements,
+      coords.map((e) => _order(e).join(' ')).join(' ') as XmlElements<''>,
     ),
-  );
+  ) as Gml;
 };
 
 const gmlPolygon: CoordinateConverter<Polygon> = (
-  gml: Namespace,
+  gml: Namespace<any, typeof GML>,
   coordinates: Polygon['coordinates'],
-  params: Params = {},
-): XmlElements => {
-  let { srsName, gmlId = null, ...rest } = params;
+  params: Partial<IdParam & SrsNameParam> & Params = {},
+): Gml => {
+  let { srsName = null, gmlId = null, ...rest } = params;
   // geom.coordinates are arrays of LinearRings
   let [poly, ...rings] = coordinates;
   const _interior = tagFn(gml.qualify('interior' as Name));
@@ -362,7 +387,7 @@ const gmlPolygon: CoordinateConverter<Polygon> = (
 
     tag(gml.qualify('exterior' as Name), [], gmlLinearRing(gml, poly, rest)),
     ...rings.map((ring) => _interior([], gmlLinearRing(gml, ring, rest))),
-  );
+  ) as Gml;
 };
 
 /**
@@ -465,14 +490,8 @@ Converts an input geojson MultiLineString geometry to gml
 const geom: MultiLineString = {
   type: 'MultiLineString',
   coordinates: [
-    [
-      [100.0, 0.0],
-      [101.0, 1.0],
-    ],
-    [
-      [102.0, 2.0],
-      [103.0, 3.0],
-    ],
+    [[100.0, 0.0], [101.0, 1.0]],
+    [[102.0, 2.0], [103.0, 3.0]],
   ],
 };
 expect(multiLineString(geom)).toBe(''
@@ -572,14 +591,14 @@ const gmlGeometry = (
   gml: Namespace,
   geom: Geometry,
   params: Params = {},
-): XmlElements => {
+): Gml => {
   switch (geom.type) {
     case 'Point':
-      return gmlPoint(gml, geom['coordinates'], params);
+      return gmlPoint(gml, geom.coordinates, params);
     case 'LineString':
-      return gmlLineString(gml, geom['coordinates'], params);
+      return gmlLineString(gml, geom.coordinates, params);
     case 'Polygon':
-      return gmlPolygon(gml, geom['coordinates'], params);
+      return gmlPolygon(gml, geom.coordinates, params);
     case 'MultiPoint':
       return gmlMultiPoint(gml, geom, params);
     case 'MultiLineString':

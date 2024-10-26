@@ -1,4 +1,8 @@
 {
   "editor.formatOnSave": true,
-  "cSpell.import": ["./.config/cspell/cspell.yaml"]
+  "cSpell.import": ["./.config/cspell/cspell.yaml"],
+  "prettier.configPath": ".prettierrc",
+  "prettier.experimentalTernaries": true,
+  "prettier.prettierPath": "./node_modules/prettier",
+  "editor.formatOnPaste": false
 }

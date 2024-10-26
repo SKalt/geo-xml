@@ -1,74 +1,82 @@
-import type { Feature } from 'geojson';
+import type { Feature, GeoJsonProperties } from 'geojson';
 import {
   type Name,
-  type Tag,
   tag,
   Namespaces,
-  XmlElements,
+  type XmlElements,
   tagFn,
   attr,
-  escape,
+  escapeStr,
 } from 'minimxml/src';
-import { FES } from './xml';
+export const FES = 'http://www.opengis.net/fes/2.0';
 import { makeId as ensureId } from './ensure';
 
 /** construct a `<fes:ResourceId rid=??/>` element */
 const idFilter = (
-  lyr: string, // TODO: mark as AttrValue?
+  lyr: string,
   id: string,
-  resourceIdTag: ReturnType<typeof tagFn>,
-): XmlElements => {
-  return resourceIdTag([attr('rid' as Name, escape(ensureId(lyr, id)))]);
+  resourceIdTag: ReturnType<typeof tagFn<typeof FES>>,
+): XmlElements<typeof FES> => {
+  return resourceIdTag([attr('rid' as Name, escapeStr(ensureId(lyr, id)))]);
 };
 
 /**
- * Builds a filter from feature ids if one is not already input.
- * @function
- * @param filter a possible string filter
- * @param features an array of geojson feature objects
- * @param params an object of backup / override parameters
- * @return A filter, or the input filter if it was a string.
- *
- * @example
- * ```ts
- * import { filter } from "./filter";
- * const features = [{
- *   type: "Feature", id: "id",
- *   geometry: null,
- *   properties: {},
- * }];
- * const myFilter = filter(features, "myLayer");
- * console.log(myFilter); // <fes:Filter><fes:ResourceId rid="myLayer.id"/><fes:ResourceId rid="myLayer.2"/></fes:Filter>
- * ```
+Builds a filter from feature ids if one is not already input.
+@function
+@param filter a possible string filter
+@param features an array of geojson feature objects
+@param params an object of backup / override parameters
+@return A `fes:Filter` element, or the input filter if it was a string.
+
+@example
+```ts @import.meta.vitest
+const { Namespaces } = await import("minimxml/src");
+const ns = new Namespaces();
+
+const features = [{
+  type: "Feature", id: "id",
+  geometry: null,
+  properties: {layer: "defined_layer"},
+}];
+expect(filter(features, ns, "argLayer")).toBe(""
+  + `<fes:Filter>`
+  +   `<fes:ResourceId rid="argLayer.id"/>`
+  + `</fes:Filter>`
+);
+
+expect(filter(features, ns)).toBe(""
+  + `<fes:Filter>`
+  +   `<fes:ResourceId rid="defined_layer.id"/>`
+  + `</fes:Filter>`
+);
+```
  */
-export function filter(
-  features: Feature[],
-  layer: string | null = null,
+export function filter<P extends GeoJsonProperties = GeoJsonProperties>(
+  features: Feature<any, P>[],
   namespaces: Namespaces,
+  layer: string | null = null,
 ): string {
+  if (!features.length) throw new Error('missing features');
   const fes = namespaces.getOrInsert('fes' as Name, FES);
   const resourceIdTag = tagFn(fes.qualify('ResourceId' as Name));
-  let result = [];
-  for (let feature of features) {
-    let id = feature.id;
-    let lyr = feature.properties?.layer ?? layer;
-    if (id === null || id === undefined || id === '') continue;
-    if (!lyr) continue; // FIXME: is this the correct behavior?
+  const result = features.map((feature) => {
+    const { id } = feature;
+    if (!id) throw new Error('missing id');
+
+    const lyr = layer ?? feature.properties?.layer;
+    if (!lyr) throw new Error('missing layer');
 
     switch (typeof lyr) {
       case 'string':
       case 'number':
-        lyr = String(lyr);
+      case 'bigint':
         break;
       default:
         throw new Error(
           `invalid layer '${lyr}' for resource '${id}': must be a string or number`,
         );
     }
-
-    result.push(
-      resourceIdTag([attr('rid' as Name, escape(ensureId(lyr, String(id))))]),
-    );
-  }
+    return idFilter(String(lyr), String(id), resourceIdTag);
+  });
   return tag(fes.qualify('Filter' as Name), [], ...result);
 }
