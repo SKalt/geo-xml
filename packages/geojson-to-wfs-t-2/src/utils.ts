@@ -6,9 +6,8 @@
 import { GML, type Converter } from 'geojson-to-gml-3/src';
 
 import {
-  type XmlElements,
+  type Xml,
   Namespaces,
-  empty,
   Namespace,
   type Name,
   tag,
@@ -20,10 +19,10 @@ import {
 } from 'minimxml/src';
 import type { Feature, Geometry, GeoJsonProperties } from 'geojson';
 import type {
-  GeometryNamesOpt as GeometryNameParam,
+  GeometryNameOpt as GeometryNameParam,
   LayerParam,
   SrsNameOpt,
-  Params,
+  GetLayerCallback,
 } from './typeDefs.js';
 import type { Features } from '.';
 import { AttValueStr, NameStr } from 'packages/minimxml/src/parse';
@@ -59,7 +58,7 @@ export const convertProperty = <
   val: any,
   ns: Namespace<any, Schema>,
   namespaces: Namespaces,
-): XmlElements<Schema> => {
+): Xml<Schema> => {
   const el = ns.qualify(mustBeName(String(key), 'property'));
   if (val === null) {
     const nil = namespaces.getOrInsert('xsi', XSI).qualify('nil');
@@ -73,24 +72,28 @@ function translateFeature<
   Schema extends string = any,
   G extends Geometry | null = Geometry,
   P extends GeoJsonProperties = GeoJsonProperties,
-  Extensions = {},
+  Extensions extends Record<any, any> = {},
 >(
   f: Feature<G, P> & Extensions,
   params: {
     ns: Namespace<any, Schema>;
     namespaces: Namespaces;
-    convertGeom: G extends Geometry ? Converter<G> : null;
+    convertGeom: G extends Geometry ? Converter<G> : undefined;
   },
-  opts: Partial<
+  options: Partial<
     SrsNameOpt &
       LayerParam &
+      GetLayerCallback<P, Extensions> &
       GeometryNameParam & { convertProperty: typeof convertProperty<Schema, P> }
-  > = { convertProperty, geometryName: 'geometry' as Name },
-): XmlElements<Schema> {
+  >,
+): Xml<Schema> {
   const { ns, namespaces, convertGeom } = params;
-  const { srsName, layer = f.properties?.layer ?? null } = opts;
-  if (!layer) throw new Error('missing layer');
-  const geometryName = getGeomName(opts);
+  const { srsName, getLayer } = options;
+  let { layer } = options;
+  if (!layer && !getLayer)
+    throw new Error('layer or getLayer must be provided');
+  layer = layer ?? getLayer!(f);
+  const geometryName = getGeomName(options);
   const kvp = []; // necessary since we man have neither geometry nor properties
   if (f.geometry !== null) {
     kvp.push(
@@ -115,11 +118,11 @@ function translateFeature<
     : [
         attr(
           namespaces.getOrInsert('gml', GML).qualify('id'),
-          escape(`${layer}:${f.id}`),
+          escape(`${layer}.${f.id}`),
         ),
       ];
 
-  return tag(ns.qualify(layerToName(layer)), _attrs, ...kvp);
+  return tag(ns.qualify(layerToName(String(layer))), _attrs, ...kvp);
 }
 
 /**
@@ -127,7 +130,11 @@ Serializes an array of geojson features as `gml:_feature` strings.
 @function
 @private
 @param features features to translate to `gml:_feature` XML elements.
-@param opts an object of backup / override parameters
+@param params TODO: describe
+@param params.ns the XML name representing the features' schema.
+@param params.namespaces TODO: describe asdf
+@param options TODO: describe
+@param options.nsUri the namespace URI for the features' schema.
 @return a `gml:_feature` string.
 */
 export function translateFeatures<
@@ -140,26 +147,38 @@ export function translateFeatures<
   features: Array<Feature<G, P> & Extensions>,
   params: {
     namespaces: Namespaces;
-    ns: Name | NameStr<N>;
+    // TODO: demote to option, fall back to parsing nsUri
     nsUri: AttrValue | AttValueStr<SchemaUri>;
-    convertGeom: G extends Geometry ? Converter<G> : null;
+    convertGeom: G extends Geometry ? Converter<G> : undefined;
   },
-  opts: Partial<
+  options: Partial<
     SrsNameOpt &
-      GeometryNameParam &
-      LayerParam & { convertProperty: typeof convertProperty<SchemaUri, P> }
+      LayerParam &
+      GetLayerCallback<P, Extensions> &
+      GeometryNameParam & {
+        convertProperty: typeof convertProperty<SchemaUri, P>;
+      } & { ns: Name | NameStr<N> }
   > = {
     convertProperty,
+    geometryName: 'geometry' as Name,
   },
-): XmlElements<SchemaUri>[] {
-  const { namespaces, convertGeom } = params;
-  const ns = namespaces.getOrInsert(params.ns, params.nsUri);
+): Xml<SchemaUri>[] {
+  const { namespaces, convertGeom, nsUri } = params;
+  let _ns: Name;
+  if (options.ns) {
+    _ns = options.ns as Name;
+  } else {
+    const lastSegment = (nsUri as string).split('/').pop() ?? '';
+    if (isName(lastSegment)) _ns = lastSegment;
+    else throw new Error(`Cannot infer namespace name from URI: ${nsUri}`);
+  }
+  const ns = namespaces.getOrInsert(_ns, params.nsUri);
   return features.map(
-    (feature): XmlElements<SchemaUri> =>
+    (feature): Xml<SchemaUri> =>
       translateFeature<SchemaUri, G, P, Extensions>(
         feature,
         { ns, namespaces, convertGeom },
-        opts,
+        options,
       ),
   );
 }

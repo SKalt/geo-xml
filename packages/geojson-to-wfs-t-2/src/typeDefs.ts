@@ -1,7 +1,8 @@
 // TODO: rename to params.ts
-import { type Feature } from 'geojson';
-import { Name, XmlElements } from 'packages/minimxml/src';
+import { GeoJsonProperties, type Feature } from 'geojson';
+import { Name, Xml } from 'packages/minimxml/src';
 import { FES } from './filter';
+import { NameStr } from 'packages/minimxml/src/parse';
 
 export type SrsNameOpt = {
   /** srsName, as specified at
@@ -23,18 +24,24 @@ export type HandleOpt = {
    * {@link http://docs.opengeospatial.org/is/09-025r2/09-025r2.html#44 | OGC 09-025r2 § 7.6.2.6} */
   handle: string;
 };
-export type GeometryNamesOpt = {
+export type GeometryNameOpt = {
   /** the name of the feature geometry field. */
   geometryName: Name;
   // TODO: make Record<string, _>
 };
 export type LayerParam = {
-  /** a string layer name */
-  layer?: string;
+  /** the name of the layer. Should be a valid XML name matching `[A-Za-z_:][A-Za-z_:0-9_.-]*`. */
+  layer: string | number | bigint;
 };
+export type GetLayerCallback<
+  P extends GeoJsonProperties,
+  Extensions extends Record<any, any>,
+> = { getLayer: (feature: Feature<any, P> & Extensions) => Name };
+
+export type NsOpt<N extends string> = { ns: Name | NameStr<N> };
 
 export type FilterParam = {
-  filter: XmlElements<typeof FES>;
+  filter: Xml<typeof FES>;
 };
 
 /**  An object containing optional named parameters. */
@@ -44,10 +51,13 @@ export type Params = {
   //  * feature properties */
   // properties?: Feature['properties'];
 };
+
 export type TypeNameOpt = {
   /** feature type within
-   * its namespace. See {@link http://docs.opengeospatial.org/is/09-025r2/09-025r2.html#90 | 09-025r2 § 7.9.2.4.1} */
-  typeName?: string;
+   * its namespace. See {@link  https://docs.ogc.org/is/09-025r2/09-025r2.html#288 | 09-025r2 § 15.2.5.2.3}
+   * or {@link https://docs.ogc.org/is/09-025r2/09-025r2.html#298 | 09-025r2 § 15.2.7.2.1 }.
+   */
+  typeName: string;
 };
 
 /**
@@ -62,6 +72,6 @@ export type TransactionOpts = {
   lockId?: string;
   /**
    * releaseAction parameter, as specified
-   * at {@link http://docs.opengeospatial.org/is/09-025r2/09-025r2.html#278 | OGC 09-025r2 § 15.2.3.2} */
-  releaseAction?: string;
+   * at {@link https://docs.ogc.org/is/09-025r2/09-025r2.html#278 | OGC 09-025r2 § 15.2.3.2: `releaseAction` parameter} */
+  releaseAction?: 'ALL' | 'SOME';
 };

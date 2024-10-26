@@ -1,5 +1,5 @@
-import { ScalarValue } from '.';
-import { LayerParam, Params, TypeNameOpt } from './typeDefs';
+import { type ScalarValue } from '.';
+import { type LayerParam } from './typeDefs';
 import {
   attrs,
   type Name,
@@ -7,8 +7,8 @@ import {
   tagFn,
   escapeStr,
   empty,
-  XmlElements,
-  Attr,
+  type Xml,
+  type Attr,
 } from 'minimxml/src';
 
 import { WFS, XSI } from './xml';
@@ -26,7 +26,7 @@ const _handlePropertyValue = (
   action: Action,
   valueTag: ReturnType<typeof tagFn<typeof WFS>>,
   namespaces: Namespaces,
-): XmlElements<typeof WFS> => {
+): Xml<typeof WFS> => {
   if (action === 'remove') return empty;
   if (value !== null) return valueTag([], escapeStr(value.toString()));
   else {
@@ -60,30 +60,30 @@ const getTags = (namespaces: Namespaces) => {
 //     <fes:PropertyIsEqualTo>
 
 type Input = {
-  selectors: XmlElements<typeof FES>;
+  selectors: Xml<typeof FES>;
   properties: Record<
     string, // the property name
     ScalarValue // the property value
   >;
   geometry?: Record<
     string, // the property name containing the geometry
-    XmlElements<typeof GML> // the geometry value as GML
+    Xml<typeof GML> // the geometry value as GML
   >;
   action?: Action;
 };
 
 const _update = (
   input: Input,
-  typeName: string,
+  layer: string | number | bigint,
   tags: ReturnType<typeof getTags>,
   namespaces: Namespaces,
-): XmlElements<typeof WFS> => {
+): Xml<typeof WFS> => {
   const { selectors, properties, action = 'replace', geometry } = input;
   const { keyTag, valueTag, propertyTag, updateTag } = tags;
   const actionAttr = [`action=${action}` as Attr];
-  let propertyUpdates: XmlElements<typeof WFS>[] = Object.entries(properties)
+  let propertyUpdates: Xml<typeof WFS>[] = Object.entries(properties)
     .map(
-      ([key, value]): XmlElements<typeof WFS> =>
+      ([key, value]): Xml<typeof WFS> =>
         propertyTag(
           [],
           keyTag(actionAttr, escapeStr(key)),
@@ -92,7 +92,7 @@ const _update = (
     )
     .concat(
       Object.entries(geometry ?? {}).map(
-        ([key, value]): XmlElements<typeof WFS> =>
+        ([key, value]): Xml<typeof WFS> =>
           propertyTag(
             [],
             keyTag(actionAttr, escapeStr(key)),
@@ -100,21 +100,14 @@ const _update = (
           ),
       ),
     );
-  return updateTag(attrs({ typeName }), ...propertyUpdates, selectors);
+  return updateTag(attrs({ typeName: layer }), ...propertyUpdates, selectors);
 };
 
 export function update(
   input: Input,
-  namespaces: Namespaces,
-  params: Params & LayerParam & TypeNameOpt,
-): XmlElements<typeof WFS> {
-  let { layer, typeName } = params;
-  typeName = typeName ?? layer;
-  if (!typeName) throw new Error('typeName or layer must be provided');
-
-  const tags = getTags(namespaces);
-
-  return _update(input, typeName, tags, namespaces);
+  { layer, namespaces }: LayerParam & { namespaces: Namespaces },
+): Xml<typeof WFS> {
+  return _update(input, layer, getTags(namespaces), namespaces);
 }
 
 /**
@@ -122,17 +115,42 @@ Updates the input features in bulk with params.properties or by id.
 @param inputs // TODO
 @param params // TODO
 @return a string `wfs:Update` action for every input.
+
+@example
+```ts @import.meta.vitest
+const { Namespaces } = await import("minimxml/src");
+const namespaces = new Namespaces();
+const features = [{
+  id: 13,
+  properties: {TYPE: "dirt"},
+  geometry: null,
+}]
+const layer = "tasmania_roads";
+const actual = bulkUpdate([{
+  selectors: filter(features, namespaces, {layer}),
+  properties: {TYPE: "rainbow"},
+  action: "replace",
+}], namespaces, {layer});
+
+expect(actual).toBe("" +
+  `<wfs:Update typeName="tasmania_roads">`
+  +  `<wfs:Property>`
+  +    `<wfs:ValueReference>TYPE</wfs:ValueReference>`
+  +    `<wfs:Value>rainbow</wfs:Value>`
+  +  `</wfs:Property>`
+  +  `<fes:Filter>`
+  +    `<fes:ResourceId rid="tasmania_roads.13"/>`
+  +  `</fes:Filter>`
+  + `</wfs:Update>`
+);
+```
 */
 export function bulkUpdate(
   inputs: Input[],
   namespaces: Namespaces,
-  params: LayerParam & TypeNameOpt,
-): XmlElements<typeof WFS>[] {
-  let { layer, typeName } = params;
-  typeName = typeName ?? layer;
-  if (!typeName) throw new Error('typeName or layer must be provided');
-
-  const tags = getTags(namespaces);
-
-  return inputs.map((input) => _update(input, typeName, tags, namespaces));
+  { layer }: LayerParam,
+): Xml<typeof WFS>[] {
+  return inputs.map((input) =>
+    _update(input, layer, getTags(namespaces), namespaces),
+  );
 }
