@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "geojson-to-gml-3": "workspace:geojson-to-gml-3",
+    "geojson-to-fes-2": "workspace:geojson-to-fes-2",
     "minimxml": "workspace:minimxml"
   }
 }

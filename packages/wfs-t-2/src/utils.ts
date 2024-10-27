@@ -24,7 +24,7 @@ import type {
   SrsNameOpt,
   GetLayerCallback,
 } from './typeDefs.js';
-import type { Features } from '.';
+import type { Features } from './index.js';
 import { AttValueStr, NameStr } from 'packages/minimxml/src/parse';
 import { XSI } from './xml.js';
 

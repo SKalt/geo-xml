@@ -15,7 +15,7 @@ import {
 } from './typeDefs';
 import { asArray, translateFeatures } from './utils';
 import { type Features } from '.';
-import { Converter } from 'packages/geojson-to-gml-3/src';
+import { Converter } from 'packages/gml-3/src';
 import { AttValueStr, NameStr } from 'packages/minimxml/src/parse';
 
 /**

@@ -11,7 +11,7 @@ import {
 } from 'minimxml/src';
 import type { GeoJsonProperties, Geometry } from 'geojson';
 import { WFS } from './xml';
-import { type Converter } from 'packages/geojson-to-gml-3/src';
+import { type Converter } from 'packages/gml-3/src';
 import type { AttValueStr, NameStr } from 'packages/minimxml/src/parse';
 import { FES } from './filter';
 

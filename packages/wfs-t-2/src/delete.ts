@@ -5,6 +5,8 @@ import { FES } from './filter';
 
 /**
 Creates a `wfs:Delete` action using a `fes:Filter`.
+The `_` suffix is added to avoid conflict with the `delete` keyword.
+
 @see {@link https://docs.ogc.org/is/09-025r2/09-025r2.html#295 | OGC 09-025r2 § 15.2.7}
 
 @param layer the name of the layer to delete from. See {@link https://docs.ogc.org/is/09-025r2/09-025r2.html#298 | 09-025r2 § 15.2.7.2.1}

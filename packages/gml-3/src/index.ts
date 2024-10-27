@@ -7,6 +7,7 @@
  */
 
 import type {
+  BBox,
   Geometry,
   GeometryCollection,
   LineString,
@@ -25,14 +26,44 @@ import {
   attrs,
   Namespace,
   tagFn,
-  type XmlElements,
+  type Xml,
+  Text,
 } from 'minimxml/src';
 
 export const GML = 'http://www.opengis.net/gml/3.2' as const;
 
 // TODO: document
-export type Gml = XmlElements<typeof GML>;
+export type Gml = Xml<typeof GML>;
 
+export const bbox = (
+  bbox: BBox,
+  params: Params,
+  namespaces?: Namespaces | null,
+): Gml => {
+  namespaces = namespaces ?? new Namespaces();
+  const { ns = 'gml' as Name, srsDimension, srsName } = params;
+  const gml = namespaces.getOrInsert(ns, GML);
+
+  return tag(
+    gml.qualify('Envelope' as Name),
+    attrs({
+      srsDimension,
+      srsName,
+    }),
+    tag(
+      gml.qualify('lowerCorner'),
+      [],
+      bbox
+        .slice(0, bbox.length / 2) // safe since `BBox["length"]` must be either 4 or 6
+        .join(' ') as Text, // safe since `BBox` is composed entirely of numbers
+    ),
+    tag(
+      gml.qualify('upperCorner'),
+      [],
+      bbox.slice(bbox.length / 2).join(' ') as Text,
+    ),
+  );
+};
 /**
  The signature of all public geojson-to-gml conversion functions.
 
@@ -242,7 +273,7 @@ const gmlPoint: CoordinateConverter<Point> = (
     tag(
       gml.qualify('pos' as Name),
       attrs({ srsDimension }),
-      coordOrder(order)(coordinates).join(' ') as XmlElements<''>,
+      coordOrder(order)(coordinates).join(' ') as Xml<''>,
     ),
   ) as Gml;
 };
@@ -270,7 +301,7 @@ export const point: Converter<Point> = withGmlNamespace<Point>(
 const gmlLineStringCoords = (
   coordinates: LineString['coordinates'],
   order: CoordinateOrder = CoordinateOrder.LON_LAT,
-): XmlElements<''> => {
+): Xml<''> => {
   let result = '';
   const _order = coordOrder(order);
   for (let pos of coordinates) {
@@ -278,7 +309,7 @@ const gmlLineStringCoords = (
       result += `${n} `;
     }
   }
-  return result.trim() as XmlElements<''>;
+  return result.trim() as Xml<''>;
 };
 
 const gmlLineString: CoordinateConverter<LineString> = (
@@ -302,7 +333,7 @@ const gmlLineString: CoordinateConverter<LineString> = (
     tag(
       gml.qualify('posList' as Name),
       attrs({ srsDimension }),
-      gmlLineStringCoords(coordinates, order) as XmlElements<''>,
+      gmlLineStringCoords(coordinates, order) as Xml<''>,
     ),
   ) as Gml;
 };
@@ -366,7 +397,7 @@ const gmlLinearRing: CoordinateConverter<LineString> = (
     tag(
       gml.qualify('posList' as Name),
       attrs({ srsDimension }),
-      coords.map((e) => _order(e).join(' ')).join(' ') as XmlElements<''>,
+      coords.map((e) => _order(e).join(' ')).join(' ') as Xml<''>,
     ),
   ) as Gml;
 };

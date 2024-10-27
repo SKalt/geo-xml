@@ -8,9 +8,16 @@ import {
   attr,
   escapeStr,
 } from 'minimxml/src';
+// https://docs.ogc.org/is/09-026r2/09-026r2.html
 export const FES = 'http://www.opengis.net/fes/2.0';
-import { makeId as ensureId } from './ensure';
-import { GetLayerCallback, LayerParam } from './typeDefs';
+const makeId = (lyr: string, id: string): string => {
+  if (!id || id.includes('.')) throw new Error(`invalid id "${id}"`);
+  if (!lyr || lyr.includes('.')) throw new Error(`invalid layer "${lyr}"`);
+  if (lyr) return `${lyr}.${id}`;
+  return id;
+};
+// import { GetLayerCallback, LayerParam } from './typeDefs';
+import { GML } from 'packages/gml-3/src';
 
 /** construct a `<fes:ResourceId rid=??/>` element */
 const idFilter = (
@@ -18,7 +25,7 @@ const idFilter = (
   id: string,
   resourceIdTag: ReturnType<typeof tagFn<typeof FES>>,
 ): Xml<typeof FES> => {
-  return resourceIdTag([attr('rid' as Name, escapeStr(ensureId(lyr, id)))]);
+  return resourceIdTag([attr('rid' as Name, escapeStr(makeId(lyr, id)))]);
 };
 
 /**
@@ -62,39 +69,15 @@ expect(filter(features, namespaces, { layer, getLayer })).toBe(""
 );
 ```
  */
-export function filter<
-  P extends GeoJsonProperties = GeoJsonProperties,
-  Extensions extends Record<string, any> = {},
->(
-  features: Array<Feature<any, P> & Extensions>,
+export function filter(
+  predicates: Xml<typeof FES>[] | Xml<typeof FES>,
   namespaces: Namespaces,
-  options: Partial<LayerParam & GetLayerCallback<P, Extensions>> = {},
 ): Xml<typeof FES> {
-  if (!features.length) throw new Error('missing features');
-  if (!options.layer && !options.getLayer)
-    throw new Error('either layer or getLayer must be provided');
-  const fes = namespaces.getOrInsert('fes' as Name, FES);
-  const resourceIdTag = tagFn(fes.qualify('ResourceId' as Name));
-  const { layer, getLayer = (_: any) => layer! } = options;
-  const result = features.map((feature) => {
-    const { id } = feature;
-    if (!id) throw new Error('missing id');
-    let layer = getLayer(feature);
-    if (!layer) throw new Error('missing layer');
-
-    switch (typeof layer) {
-      case 'string':
-      case 'number':
-      case 'bigint':
-        break;
-      default:
-        throw new Error(
-          `invalid layer '${layer}' for resource '${id}': must be a string or number`,
-        );
-    }
-    return idFilter(String(layer), String(id), resourceIdTag);
-  });
-  return tag(fes.qualify('Filter' as Name), [], ...result);
+  return tag(
+    namespaces.getOrInsert('fes' as Name, FES).qualify('Filter' as Name),
+    [],
+    ...(typeof predicates === 'string' ? [predicates] : predicates),
+  );
 }
 
 // TODO: add more filter kinds

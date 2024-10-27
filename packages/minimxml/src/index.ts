@@ -19,11 +19,12 @@ export type Tag<Schema extends string> =
   : Name & { _Schema: Schema };
 /** a string that must be a valid XML element or a concatenation of valid XML
  * documents separated only by spaces. */
-export type XmlElements<Schema extends string> =
+export type Xml<Schema extends string> =
   string extends Schema ? never
   : [Schema] extends [never] ? never
-  : string & { readonly _XmlElements: unique symbol; readonly _Schema: Schema };
-// TODO: cdata type?
+  : string & { readonly _Xml: unique symbol; readonly _Schema: Schema };
+
+export type Text = Xml<'text'>;
 // TODO: specific FesFilter type
 
 // restrict names to ASCII for simplicity
@@ -63,18 +64,18 @@ export class Namespace<N extends string = string, Uri extends string = any> {
 
 export const escape = (
   val: any,
-  fallback: (obj: any) => XmlElements<'text'> & AttrValue = (_) => {
+  fallback: (obj: any) => Xml<'text'> & AttrValue = (_) => {
     throw new Error(`unable to escape ${typeof val}: '${String(val)}'`);
   },
-): XmlElements<'text'> & AttrValue => {
+): Xml<'text'> & AttrValue => {
   switch (typeof val) {
     case 'string':
       return escapeStr(val);
     case 'number':
     case 'bigint':
-      return val.toString() as XmlElements<'text'> & AttrValue;
+      return val.toString() as Xml<'text'> & AttrValue;
     case 'boolean':
-      return (val ? 'true' : 'false') as XmlElements<'text'> & AttrValue; // FIXME: check acceptability values
+      return (val ? 'true' : 'false') as Xml<'text'> & AttrValue; // FIXME: check acceptability values
     default: // object, function, symbol, undefined
       return fallback(val);
   }
@@ -91,16 +92,16 @@ const replacements = {
 };
 
 /** Escape XML attribute values.
- * XML attribute values must match /"([^<&"]|&\w+;)*"/
- * Thus, escape `&`, `<`, ` and just to be sure, `'` and `>`
+ * XML attribute values must match `/"([^<&"]|&\w+;)*"/` or `/'([^<&']|&\w+;)*'/`.
+ * Thus, escape `&`, `<`, `"`, `'` and `>`
  * @see https://www.w3.org/TR/REC-xml/#NT-Attribute
  * @see https://www.w3.org/TR/REC-xml/#NT-AttValue
  */
-export const escapeStr = (str: string): AttrValue & XmlElements<'text'> => {
+export const escapeStr = (str: string): AttrValue & Xml<'text'> => {
   return str.replace(
     /[<>&'"]/g,
     (c) => (replacements as Record<string, string>)[c] ?? '',
-  ) as AttrValue & XmlElements<'text'>;
+  ) as AttrValue & Xml<'text'>;
 };
 
 export const attr = <K extends string = string, V extends string = string>(
@@ -113,7 +114,7 @@ export const attr = <K extends string = string, V extends string = string>(
  * @return a string of xml attribute key-value pairs
  */
 export function attrs(
-  attrs: Record<string, string | number | bigint | null | boolean>,
+  attrs: Record<string, string | number | bigint | boolean | null | undefined>,
 ): Attr[] {
   return Object.entries(attrs)
     .map(([key, val]): Attr | null => {
@@ -122,28 +123,28 @@ export function attrs(
     })
     .filter((attr) => attr !== null);
 }
-export const empty = '' as XmlElements<any>;
+export const empty = '' as Xml<any>;
 export const concat = <Schema extends string = any>(
-  ...x: XmlElements<Schema>[]
-): XmlElements<Schema> => x.join(empty) as XmlElements<Schema>;
+  ...x: Xml<Schema>[]
+): Xml<Schema> => x.join(empty) as Xml<Schema>;
 
 export const tagFn =
   <Schema extends string>(tagName: Tag<Schema>) =>
-  <Inner extends string>(attrs: Attr[], ...inner: XmlElements<Inner>[]) =>
+  <Inner extends string>(attrs: Attr[], ...inner: Xml<Inner>[]) =>
     tag<Schema, Inner>(tagName, attrs, ...inner);
 
 export function tag<Schema extends string, InnerSchemata extends string = any>(
   tag: Tag<Schema>,
   attrs: Attr[],
-  ...inner: XmlElements<InnerSchemata>[]
-): XmlElements<Schema> {
+  ...inner: Xml<InnerSchemata>[]
+): Xml<Schema> {
   let _attrs = attrs.sort().join(' ');
   if (_attrs) _attrs = ' ' + _attrs;
   let result =
     inner.length ?
       `<${tag}${_attrs}>${concat(...inner)}</${tag}>`
     : `<${tag}${_attrs}/>`;
-  return result as XmlElements<Schema>;
+  return result as Xml<Schema>;
 }
 
 /** cache validated uris, names, xmlns declarations, tag constructors. */
@@ -228,12 +229,9 @@ export class Namespaces {
   }
 }
 
-export const spliceXmlns = <Schema extends string>(
-  xml: XmlElements<Schema>,
-  ns: Namespaces,
-): XmlElements<Schema> => {
-  return xml.replace(
-    '>',
-    ` ${ns.xmlnsAttrs().join(' ')}>`,
-  ) as XmlElements<Schema>;
-};
+// export const spliceXmlns = <Schema extends string>(
+//   xml: Xml<Schema>,
+//   ns: Namespaces,
+// ): Xml<Schema> => {
+//   return xml.replace('>', ` ${ns.xmlnsAttrs().join(' ')}>`) as Xml<Schema>;
+// };

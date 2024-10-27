@@ -12,7 +12,7 @@ import {
 } from 'minimxml/src';
 
 import { WFS, XSI } from './xml';
-import { GML } from 'packages/geojson-to-gml-3/src';
+import { GML } from 'packages/gml-3/src';
 import { FES } from './filter';
 
 /**
@@ -122,25 +122,25 @@ const { Namespaces } = await import("minimxml/src");
 const namespaces = new Namespaces();
 const features = [{
   id: 13,
-  properties: {TYPE: "dirt"},
+  properties: { TYPE: "dirt" },
   geometry: null,
 }]
 const layer = "tasmania_roads";
 const actual = bulkUpdate([{
-  selectors: filter(features, namespaces, {layer}),
-  properties: {TYPE: "rainbow"},
+  selectors: filter(features, namespaces, { layer }),
+  properties: { TYPE: "rainbow" },
   action: "replace",
-}], namespaces, {layer});
+}], namespaces, { layer });
 
-expect(actual).toBe("" +
-  `<wfs:Update typeName="tasmania_roads">`
-  +  `<wfs:Property>`
-  +    `<wfs:ValueReference>TYPE</wfs:ValueReference>`
-  +    `<wfs:Value>rainbow</wfs:Value>`
-  +  `</wfs:Property>`
-  +  `<fes:Filter>`
-  +    `<fes:ResourceId rid="tasmania_roads.13"/>`
-  +  `</fes:Filter>`
+expect(actual).toBe(""
+  + `<wfs:Update typeName="tasmania_roads">`
+  +   `<wfs:Property>`
+  +     `<wfs:ValueReference>TYPE</wfs:ValueReference>`
+  +     `<wfs:Value>rainbow</wfs:Value>`
+  +   `</wfs:Property>`
+  +   `<fes:Filter>`
+  +     `<fes:ResourceId rid="tasmania_roads.13"/>`
+  +   `</fes:Filter>`
   + `</wfs:Update>`
 );
 ```
