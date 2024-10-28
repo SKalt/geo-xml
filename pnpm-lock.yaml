@@ -118,6 +118,9 @@ importers:
 
   packages/wfs-t-2:
     dependencies:
+      geojson-to-fes-2:
+        specifier: workspace:geojson-to-fes-2
+        version: link:../fes-2
       geojson-to-gml-3:
         specifier: workspace:geojson-to-gml-3
         version: link:../gml-3

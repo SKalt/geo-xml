@@ -13,7 +13,7 @@ import {
 
 import { WFS, XSI } from './xml';
 import { GML } from 'packages/gml-3/src';
-import { FES } from './filter';
+import { FES } from 'geojson-to-fes-2/src';
 
 /**
 See {@link http://docs.opengeospatial.org/is/09-025r2/09-025r2.html#286 | OGC 09-025r2 § 15.2.5.2.1}.
@@ -119,6 +119,7 @@ Updates the input features in bulk with params.properties or by id.
 @example
 ```ts @import.meta.vitest
 const { Namespaces } = await import("minimxml/src");
+const { filter, idFilter } = await import("geojson-to-fes-2/src");
 const namespaces = new Namespaces();
 const features = [{
   id: 13,
@@ -127,12 +128,13 @@ const features = [{
 }]
 const layer = "tasmania_roads";
 const actual = bulkUpdate([{
-  selectors: filter(features, namespaces, { layer }),
+  selectors: filter(features.map(f => idFilter(`${layer}.${f.id}`, namespaces)), namespaces),
   properties: { TYPE: "rainbow" },
   action: "replace",
 }], namespaces, { layer });
 
-expect(actual).toBe(""
+expect(actual.length).toBe(1);
+expect(actual[0]).toBe(""
   + `<wfs:Update typeName="tasmania_roads">`
   +   `<wfs:Property>`
   +     `<wfs:ValueReference>TYPE</wfs:ValueReference>`

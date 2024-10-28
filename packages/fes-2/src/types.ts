@@ -1,6 +1,6 @@
 import { Gml } from 'packages/gml-3/src';
 
-const enum FilterType {
+export const enum FilterType {
   // binary comparisons
   PropertyIsEqualTo = 'PropertyIsEqualTo',
   PropertyIsNotEqualTo = 'PropertyIsNotEqualTo',

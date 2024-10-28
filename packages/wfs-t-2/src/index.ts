@@ -37,7 +37,6 @@ export type ScalarValue = string | number | boolean | null;
 export { delete_ } from './delete';
 export { insert } from './insert';
 export { bulkUpdate, update } from './update';
-export { filter } from './filter';
 
 /**
 Wraps the input actions in a wfs:Transaction.

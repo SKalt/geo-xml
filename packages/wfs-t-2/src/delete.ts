@@ -1,7 +1,7 @@
 import { LayerParam } from './typeDefs';
 import { Name, Namespaces, tag, type Xml, attrs } from 'minimxml/src';
 import { WFS } from './xml';
-import { FES } from './filter';
+import { FES } from 'geojson-to-fes-2/src';
 
 /**
 Creates a `wfs:Delete` action using a `fes:Filter`.

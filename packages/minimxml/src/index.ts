@@ -20,8 +20,7 @@ export type Tag<Schema extends string> =
 /** a string that must be a valid XML element or a concatenation of valid XML
  * documents separated only by spaces. */
 export type Xml<Schema extends string> =
-  string extends Schema ? never
-  : [Schema] extends [never] ? never
+  [Schema] extends [never] ? never
   : string & { readonly _Xml: unique symbol; readonly _Schema: Schema };
 
 export type Text = Xml<'text'>;

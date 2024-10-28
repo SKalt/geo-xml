@@ -13,7 +13,7 @@ import type { GeoJsonProperties, Geometry } from 'geojson';
 import { WFS } from './xml';
 import { type Converter } from 'packages/gml-3/src';
 import type { AttValueStr, NameStr } from 'packages/minimxml/src/parse';
-import { FES } from './filter';
+import { FES } from 'geojson-to-fes-2/src';
 
 /**
 Returns a string wfs:Replace action. a `wfs:Replace` action is a request to
@@ -27,15 +27,18 @@ replace one or more entire features.
 ```ts @import.meta.vitest
 const { Namespaces } = await import("minimxml/src");
 const { translateFeatures } = await import("./utils");
-const { filter } = await import("./filter");
-const namespaces = new Namespaces();
+const { filter, idFilter } = await import("geojson-to-fes-2/src");
+const ns = new Namespaces();
 const features = [{id: 13, properties: {TYPE: "rainbow"}, geometry: null}];
 const layer = "tasmania_roads";
 const actual = replace(
   features,
   {
-    namespaces,
-    filter: filter(features, namespaces, {layer}),
+    namespaces: ns,
+    filter: filter(
+      features.map(f => idFilter(`tasmania_roads.${f.id}`, ns)),
+      ns,
+    ),
     nsUri: "http://www.openplans.org/topp"
   },
   {layer},
