@@ -6,5 +6,5 @@ scopes:
   deps: changes to dependencies
   gml: changes to packages/gml-3
   xml: changes to packages/minimxml
-  wfs: changes to packages/wfs-3
+  wfs: changes to packages/wfs-t-2
   fes: changes to packages/fes-2
