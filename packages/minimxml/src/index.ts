@@ -146,9 +146,12 @@ export const tag =
   (ns: NsRegistry): Xml<Schema> => {
     let _attrs = attrs.sort().join(' ');
     if (_attrs) _attrs = ' ' + _attrs;
-    let result =
-      inner.length ?
-        `<${tag}${_attrs}>${concat(...inner.map((x) => (typeof x === 'function' ? x(ns) : x)))}</${tag}>`
+    const content = concat(
+      ...inner.map((x) => (typeof x === 'function' ? x(ns) : x)),
+    );
+    const result =
+      content.length ?
+        `<${tag}${_attrs}>${content}</${tag}>`
       : `<${tag}${_attrs}/>`;
     return result as Xml<Schema>;
   };
