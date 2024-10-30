@@ -9,8 +9,9 @@ import type {
   Point,
   Polygon,
 } from 'geojson';
-import gml, { GML } from '../src/index';
+import gml from '../src/index';
 import { expect, it } from 'vitest';
+import { NsRegistry } from 'minimxml/src';
 
 // create geojson examples
 
@@ -24,7 +25,7 @@ import { expect, it } from 'vitest';
 
 it('renders a Point correctly', () => {
   const point: Point = { type: 'Point', coordinates: [102.0, 0.5] };
-  expect(gml(point)).toMatchFileSnapshot('./snapshots/point.gml');
+  expect(gml(point)()).toMatchFileSnapshot('./snapshots/point.gml');
 });
 it('renders a LineString correctly', () => {
   const line: LineString = {
@@ -36,7 +37,7 @@ it('renders a LineString correctly', () => {
       [105.0, 1.0],
     ],
   };
-  expect(gml(line)).toMatchFileSnapshot('./snapshots/line.gml');
+  expect(gml(line)()).toMatchFileSnapshot('./snapshots/line.gml');
 });
 it('renders a Polygon correctly', () => {
   const polygon: Polygon = {
@@ -51,7 +52,7 @@ it('renders a Polygon correctly', () => {
       ],
     ],
   };
-  expect(gml(polygon)).toMatchFileSnapshot('./snapshots/polygon.gml');
+  expect(gml(polygon)()).toMatchFileSnapshot('./snapshots/polygon.gml');
 });
 it('renders a MultiPoint correctly', () => {
   const multipoint: MultiPoint = {
@@ -61,7 +62,7 @@ it('renders a MultiPoint correctly', () => {
       [101.0, 1.0],
     ],
   };
-  expect(gml(multipoint)).toMatchFileSnapshot('./snapshots/multipoint.gml');
+  expect(gml(multipoint)()).toMatchFileSnapshot('./snapshots/multipoint.gml');
 });
 it('renders a MultiLineString correctly', () => {
   const multiLineString: MultiLineString = {
@@ -77,7 +78,7 @@ it('renders a MultiLineString correctly', () => {
       ],
     ],
   };
-  expect(gml(multiLineString)).toMatchFileSnapshot(
+  expect(gml(multiLineString)()).toMatchFileSnapshot(
     './snapshots/multilinestring.gml',
   );
 });
@@ -112,7 +113,9 @@ it('renders a MultiPolygon correctly', () => {
       ],
     ],
   };
-  expect(gml(multipolygon)).toMatchFileSnapshot('./snapshots/multipolygon.gml');
+  expect(gml(multipolygon)()).toMatchFileSnapshot(
+    './snapshots/multipolygon.gml',
+  );
 });
 
 it('renders a GeometryCollection correctly', () => {
@@ -129,7 +132,7 @@ it('renders a GeometryCollection correctly', () => {
       },
     ],
   };
-  expect(gml(geometryCollection)).toMatchFileSnapshot(
+  expect(gml(geometryCollection)()).toMatchFileSnapshot(
     './snapshots/geometrycollection.gml',
   );
 });

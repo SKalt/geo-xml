@@ -4,13 +4,13 @@
 // or
 // <gml:endPosition>2000-01-01T00:00:00Z</gml:endPosition>
 
-import { attrs, Name, Namespaces, tag, Text } from 'packages/minimxml/src';
+import { attrs, Name, NsRegistry, tag, Text } from 'packages/minimxml/src';
 import { Gml, GML } from '.';
 
 // TimePosition
 export const timePosition = (
   time: Date,
-  namespaces: Namespaces,
+  namespaces: NsRegistry,
   { id }: { id?: string },
 ): Gml => {
   const gml = namespaces.getOrInsert('gml' as Name, GML);
@@ -23,7 +23,7 @@ export const timePosition = (
 
 export const timeInstant = (
   time: Date,
-  namespaces: Namespaces,
+  namespaces: NsRegistry,
   { id }: { id?: string },
 ): Gml => {
   const gml = namespaces.getOrInsert('gml' as Name, GML);

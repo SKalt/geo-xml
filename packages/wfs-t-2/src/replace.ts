@@ -4,10 +4,11 @@ import { asArray, translateFeatures } from './utils';
 import {
   attrs,
   type Name,
-  Namespaces,
+  NsRegistry,
   type Xml,
   tag,
   AttrValue,
+  ToXml,
 } from 'minimxml/src';
 import type { GeoJsonProperties, Geometry } from 'geojson';
 import { WFS } from './xml';
@@ -25,16 +26,15 @@ replace one or more entire features.
 
 @example
 ```ts @import.meta.vitest
-const { Namespaces } = await import("minimxml/src");
+const { NsRegistry } = await import("minimxml/src");
 const { translateFeatures } = await import("./utils");
 const { filter, idFilter } = await import("geojson-to-fes-2/src");
-const ns = new Namespaces();
+const ns = new NsRegistry();
 const features = [{id: 13, properties: {TYPE: "rainbow"}, geometry: null}];
 const layer = "tasmania_roads";
 const actual = replace(
   features,
   {
-    namespaces: ns,
     filter: filter(
       features.map(f => idFilter(`tasmania_roads.${f.id}`, ns)),
       ns,
@@ -42,7 +42,7 @@ const actual = replace(
     nsUri: "http://www.openplans.org/topp"
   },
   {layer},
-);
+)(ns);
 
 expect(actual).toBe(""
   + `<wfs:Replace>`
@@ -56,39 +56,37 @@ expect(actual).toBe(""
 ```
 
 */
-export function replace<
-  Schema extends string,
-  Ns extends string,
-  G extends Geometry | null = Geometry,
-  P extends GeoJsonProperties = GeoJsonProperties,
-  Extensions extends Record<any, any> = {},
->(
-  features: Features<G, P, Extensions>, // TODO: pass as XmlElements?
-  params: {
-    filter: Xml<typeof FES>;
-    namespaces: Namespaces;
-    nsUri: AttValueStr<Schema> | AttrValue;
-    convertGeom: G extends Geometry ? Converter<G> : undefined;
-  },
-  options: Partial<SrsNameOpt & InputFormatOpt & NsOpt<Ns>> = {},
-  // TODO: optional convertProps
-): string {
-  const { filter, namespaces, nsUri, convertGeom } = params;
-  features = asArray(features);
-  if (!features.length) throw new Error('missing features');
-  if (typeof filter !== 'string') throw new Error('filter must be a string');
-  if (!filter) throw new Error('missing filter');
-  if (!features.length) throw new Error('missing features');
+export const replace =
+  <
+    Schema extends string,
+    Ns extends string,
+    G extends Geometry | null = Geometry,
+    P extends GeoJsonProperties = GeoJsonProperties,
+    Extensions extends Record<any, any> = {},
+  >(
+    features: Features<G, P, Extensions>, // TODO: pass as XmlElements?
+    params: {
+      filter: ToXml<typeof FES>;
+      nsUri: AttValueStr<Schema> | AttrValue;
+      convertGeom: G extends Geometry ? Converter<G> : undefined;
+    },
+    options: Partial<SrsNameOpt & InputFormatOpt & NsOpt<Ns>> = {},
+    // TODO: optional convertProps
+  ): ToXml<typeof WFS> =>
+  (namespaces: NsRegistry): Xml<typeof WFS> => {
+    const { filter, nsUri, convertGeom } = params;
+    features = asArray(features);
+    if (!features.length) throw new Error('missing features');
 
-  let { srsName, inputFormat, ...remainingOptions } = options;
-  return tag<typeof WFS, any>(
-    namespaces.getOrInsert('wfs' as Name, WFS).qualify('Replace' as Name),
-    attrs({ inputFormat, srsName }),
-    ...(translateFeatures(
-      features,
-      { nsUri, namespaces, convertGeom },
-      remainingOptions,
-    ) as Xml<any>[]),
-    filter as Xml<any>,
-  );
-}
+    let { srsName, inputFormat, ...remainingOptions } = options;
+    return tag<typeof WFS, any>(
+      namespaces.getOrInsert('wfs' as Name, WFS).qualify('Replace' as Name),
+      attrs({ inputFormat, srsName }),
+      ...(translateFeatures(
+        features,
+        { nsUri, convertGeom },
+        remainingOptions,
+      )(namespaces) as Xml<any>[]),
+      filter,
+    )(namespaces);
+  };

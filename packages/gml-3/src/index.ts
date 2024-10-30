@@ -21,13 +21,15 @@ import type {
 import {
   type AttrValue,
   type Name,
-  Namespaces,
+  NsRegistry,
   tag,
   attrs,
   Namespace,
   tagFn,
   type Xml,
   Text,
+  ToXml,
+  name,
 } from 'minimxml/src';
 
 export const GML = 'http://www.opengis.net/gml/3.2' as const;
@@ -35,35 +37,35 @@ export const GML = 'http://www.opengis.net/gml/3.2' as const;
 // TODO: document
 export type Gml = Xml<typeof GML>;
 
-export const bbox = (
-  bbox: BBox,
-  params: Params,
-  namespaces?: Namespaces | null,
-): Gml => {
-  namespaces = namespaces ?? new Namespaces();
-  const { ns = 'gml' as Name, srsDimension, srsName } = params;
-  const gml = namespaces.getOrInsert(ns, GML);
+type ToGml = (r?: NsRegistry) => Gml;
 
-  return tag(
-    gml.qualify('Envelope' as Name),
-    attrs({
-      srsDimension,
-      srsName,
-    }),
-    tag(
-      gml.qualify('lowerCorner'),
-      [],
-      bbox
-        .slice(0, bbox.length / 2) // safe since `BBox["length"]` must be either 4 or 6
-        .join(' ') as Text, // safe since `BBox` is composed entirely of numbers
-    ),
-    tag(
-      gml.qualify('upperCorner'),
-      [],
-      bbox.slice(bbox.length / 2).join(' ') as Text,
-    ),
-  );
-};
+export const bbox =
+  (bbox: BBox, params: Params): ToGml =>
+  (namespaces?: NsRegistry): Gml => {
+    namespaces = namespaces ?? new NsRegistry();
+    const { ns = 'gml' as Name, srsDimension, srsName } = params;
+    const gml = namespaces.getOrInsert(ns, GML);
+
+    return tag(
+      gml.qualify('Envelope' as Name),
+      attrs({
+        srsDimension,
+        srsName,
+      }),
+      tag(
+        gml.qualify('lowerCorner'),
+        [],
+        bbox
+          .slice(0, bbox.length / 2) // safe since `BBox["length"]` must be either 4 or 6
+          .join(' ') as Text, // safe since `BBox` is composed entirely of numbers
+      ),
+      tag(
+        gml.qualify('upperCorner'),
+        [],
+        bbox.slice(bbox.length / 2).join(' ') as Text,
+      ),
+    )(namespaces);
+  };
 /**
  The signature of all public geojson-to-gml conversion functions.
 
@@ -72,16 +74,15 @@ export const bbox = (
  */
 export type Converter<Geom extends Geometry = Geometry> = (
   geom: Geom,
-  params: Params,
-  namespaces?: Namespaces | null,
-) => Gml;
+  params?: Params,
+) => ToGml;
 
 /** @private conversion interface */
 type _Converter<Geom extends Geometry = Geometry> = (
   gml: Namespace,
   geom: Geom,
   params: Params,
-) => Gml;
+) => ToXml<typeof GML>;
 
 /**
  * convert a (gml: Namespace, ...) => XmlElements function to a
@@ -90,16 +91,13 @@ type _Converter<Geom extends Geometry = Geometry> = (
 const withGmlNamespace = <Geom extends Geometry>(
   fn: _Converter<Geom>,
 ): Converter<Geom> => {
-  return (
-    geom: Geom,
-    params: Params = {},
-    namespaces: Namespaces | null = null,
-  ) => {
-    namespaces = namespaces ?? new Namespaces();
-    const { ns = 'gml' as Name } = params;
-    const gml = namespaces.getOrInsert(ns, GML as AttrValue);
-    return fn(gml, geom, params);
-  };
+  return (geom: Geom, params: Params = {}) =>
+    (namespaces?: NsRegistry) => {
+      namespaces = namespaces ?? new NsRegistry();
+      const { ns = 'gml' as Name } = params;
+      const gml = namespaces.getOrInsert(ns, GML as AttrValue);
+      return fn(gml, geom, params)(namespaces);
+    };
 };
 
 /** @private  */
@@ -107,7 +105,7 @@ type CoordinateConverter<Geom extends Exclude<Geometry, GeometryCollection>> = (
   gml: Namespace,
   geom: Geom['coordinates'],
   params: Params,
-) => Gml;
+) => ToXml<typeof GML>;
 
 const useCoords =
   <Geom extends Exclude<Geometry, GeometryCollection>>(
@@ -209,7 +207,7 @@ type ConverterFn<Collection extends MultiGeometry> = (
   gml: Namespace,
   geom: MemberKind<Collection>,
   params: Params,
-) => Gml;
+) => ToXml<typeof GML>;
 
 /**
  * A handler to compile geometries to multigeometries
@@ -249,7 +247,7 @@ function multi<Collection extends MultiGeometry>(
           }),
         ),
       ),
-    ) as Gml;
+    );
   };
 }
 
@@ -259,7 +257,7 @@ const gmlPoint: CoordinateConverter<Point> = (
   params: Partial<
     IdParam & SrsDimensionParam & SrsNameParam & CoordOrderParam
   > = {},
-) => {
+): ToXml<typeof GML> => {
   let {
     order = CoordinateOrder.LON_LAT,
     srsName = null,
@@ -273,9 +271,9 @@ const gmlPoint: CoordinateConverter<Point> = (
     tag(
       gml.qualify('pos' as Name),
       attrs({ srsDimension }),
-      coordOrder(order)(coordinates).join(' ') as Xml<''>,
+      coordOrder(order)(coordinates).join(' ') as Xml<'text'>,
     ),
-  ) as Gml;
+  );
 };
 
 /**
@@ -287,21 +285,26 @@ Converts an input geojson Point geometry to GML
  @example
 ```ts @import.meta.vitest
 const pt: Point = { type: 'Point', coordinates: [102.0, 0.5] };
-expect(point(pt)).toBe(
-  `<gml:Point>`
-  +`<gml:pos>102 0.5</gml:pos>`
-  +`</gml:Point>`
+expect(point(pt)()).toBe(""
+  + `<gml:Point>`
+  +   `<gml:pos>102 0.5</gml:pos>`
+  + `</gml:Point>`
 );
 ```
 */
 export const point: Converter<Point> = withGmlNamespace<Point>(
   useCoords(gmlPoint),
 );
+{
+  const pt: Point = { type: 'Point', coordinates: [102.0, 0.5] };
+  const _ = point(pt);
+  _();
+}
 
 const gmlLineStringCoords = (
   coordinates: LineString['coordinates'],
   order: CoordinateOrder = CoordinateOrder.LON_LAT,
-): Xml<''> => {
+): Xml<'text'> => {
   let result = '';
   const _order = coordOrder(order);
   for (let pos of coordinates) {
@@ -309,7 +312,7 @@ const gmlLineStringCoords = (
       result += `${n} `;
     }
   }
-  return result.trim() as Xml<''>;
+  return result.trim() as Xml<'text'>;
 };
 
 const gmlLineString: CoordinateConverter<LineString> = (
@@ -318,7 +321,7 @@ const gmlLineString: CoordinateConverter<LineString> = (
   params: Partial<
     SrsDimensionParam & SrsNameParam & IdParam & CoordOrderParam
   > = {},
-): Gml => {
+): ToXml<typeof GML> => {
   let {
     srsName = null,
     srsDimension = null,
@@ -333,9 +336,9 @@ const gmlLineString: CoordinateConverter<LineString> = (
     tag(
       gml.qualify('posList' as Name),
       attrs({ srsDimension }),
-      gmlLineStringCoords(coordinates, order) as Xml<''>,
+      gmlLineStringCoords(coordinates, order),
     ),
-  ) as Gml;
+  );
 };
 
 /**
@@ -347,6 +350,7 @@ Convert an input geojson LineString geometry to gml
 @returns a string containing gml representing the input geometry
 @example
 ```ts @import.meta.vitest
+const { NsRegistry } = await import('minimxml/src');
 const line: LineString = {
   type: 'LineString',
   coordinates: [
@@ -356,7 +360,7 @@ const line: LineString = {
     [105.0, 1.0],
   ],
 };
-expect(lineString(line)).toBe(''
+expect(lineString(line)(new NsRegistry())).toBe(''
   + `<gml:LineString>`
   +   `<gml:posList>`
   +    `102 0 103 1 104 0 105 1`
@@ -382,7 +386,7 @@ const gmlLinearRing: CoordinateConverter<LineString> = (
   params: Partial<
     IdParam & SrsNameParam & SrsDimensionParam & CoordOrderParam
   > = {},
-): Gml => {
+): ToXml<typeof GML> => {
   let {
     srsName = null,
     srsDimension = null,
@@ -399,14 +403,14 @@ const gmlLinearRing: CoordinateConverter<LineString> = (
       attrs({ srsDimension }),
       coords.map((e) => _order(e).join(' ')).join(' ') as Xml<''>,
     ),
-  ) as Gml;
+  );
 };
 
 const gmlPolygon: CoordinateConverter<Polygon> = (
   gml: Namespace<any, typeof GML>,
   coordinates: Polygon['coordinates'],
   params: Partial<IdParam & SrsNameParam> & Params = {},
-): Gml => {
+): ToXml<typeof GML> => {
   let { srsName = null, gmlId = null, ...rest } = params;
   // geom.coordinates are arrays of LinearRings
   let [poly, ...rings] = coordinates;
@@ -418,7 +422,7 @@ const gmlPolygon: CoordinateConverter<Polygon> = (
 
     tag(gml.qualify('exterior' as Name), [], gmlLinearRing(gml, poly, rest)),
     ...rings.map((ring) => _interior([], gmlLinearRing(gml, ring, rest))),
-  ) as Gml;
+  );
 };
 
 /**
@@ -430,6 +434,7 @@ Converts an input geojson Polygon geometry to gml
 
 @example
 ```ts @import.meta.vitest
+const { NsRegistry } = await import("minimxml/src")
 const poly: Polygon = {
   type: 'Polygon',
   coordinates: [
@@ -442,7 +447,7 @@ const poly: Polygon = {
     ],
   ],
 };
-expect(polygon(poly)).toBe(
+expect(polygon(poly)(new NsRegistry())).toBe(
     `<gml:Polygon>`
   +   `<gml:exterior>`
   +     `<gml:LinearRing>`
@@ -478,6 +483,7 @@ Converts an input geojson MultiPoint geometry to gml
 
 @example
 ```ts @import.meta.vitest
+const { NsRegistry } = await import('minimxml/src');
 const multiPt: MultiPoint = {
   type: 'MultiPoint',
   coordinates: [
@@ -485,7 +491,7 @@ const multiPt: MultiPoint = {
     [101.0, 1.0],
   ],
 };
-expect(multiPoint(multiPt)).toBe(''
+expect(multiPoint(multiPt)(new NsRegistry())).toBe(''
   + `<gml:MultiPoint>`
   +   `<gml:pointMembers>`
   +     `<gml:Point>`
@@ -518,6 +524,7 @@ Converts an input geojson MultiLineString geometry to gml
 
 @example
 ```ts @import.meta.vitest
+const { NsRegistry } = await import('minimxml/src');
 const geom: MultiLineString = {
   type: 'MultiLineString',
   coordinates: [
@@ -525,7 +532,7 @@ const geom: MultiLineString = {
     [[102.0, 2.0], [103.0, 3.0]],
   ],
 };
-expect(multiLineString(geom)).toBe(''
+expect(multiLineString(geom)(new NsRegistry())).toBe(''
   + `<gml:MultiCurve>`
   +   `<gml:curveMembers>`
   +     `<gml:LineString>`
@@ -558,6 +565,7 @@ Converts an input geojson `MultiPolygon` geometry to GML
 
 @example
 ```ts @import.meta.vitest
+const { NsRegistry } = await import('minimxml/src');
 const geom: MultiPolygon = {type: 'MultiPolygon',
   coordinates: [
     [
@@ -587,7 +595,7 @@ const geom: MultiPolygon = {type: 'MultiPolygon',
     ],
   ],
 };
-expect(multiPolygon(geom)).toBe(''
+expect(multiPolygon(geom)(new NsRegistry())).toBe(''
   + `<gml:MultiSurface>`
   +   `<gml:surfaceMembers>`
   +     `<gml:Polygon>`
@@ -622,7 +630,7 @@ const gmlGeometry = (
   gml: Namespace,
   geom: Geometry,
   params: Params = {},
-): Gml => {
+): ToXml<typeof GML> => {
   switch (geom.type) {
     case 'Point':
       return gmlPoint(gml, geom.coordinates, params);
@@ -643,7 +651,8 @@ const gmlGeometry = (
   }
 };
 // TODO: document
-export const geometry = withGmlNamespace<Geometry>(gmlGeometry);
+export const geometry: Converter<Geometry> =
+  withGmlNamespace<Geometry>(gmlGeometry);
 
 const gmlGeometryCollection: _Converter<GeometryCollection> =
   multi<GeometryCollection>(
@@ -664,6 +673,7 @@ Converts an input geojson GeometryCollection geometry to GML
 @returns a string containing GML representing the input geometry\
 @example
 ```ts @import.meta.vitest
+const { NsRegistry } = await import('minimxml/src');
 const geom: GeometryCollection = {
   type: 'GeometryCollection',
   geometries: [
@@ -678,7 +688,7 @@ const geom: GeometryCollection = {
   ],
 };
 
-expect(geometryCollection(geom)).toBe(''
+expect(geometryCollection(geom)(new NsRegistry())).toBe(''
   + `<gml:MultiGeometry>`
   +  `<gml:geometryMembers>`
   +    `<gml:Point><gml:pos>100 0</gml:pos></gml:Point>`

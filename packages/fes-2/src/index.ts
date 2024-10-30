@@ -1,4 +1,4 @@
-import { type Name, tag, Namespaces, type Xml } from 'minimxml/src';
+import { type Name, tag, NsRegistry, type Xml, ToXml } from 'minimxml/src';
 // https://docs.ogc.org/is/09-026r2/09-026r2.html
 export const FES = 'http://www.opengis.net/fes/2.0';
 
@@ -13,25 +13,24 @@ Builds a filter from feature ids if one is not already input.
 
 @example
 ```ts @import.meta.vitest
-const { Namespaces } = await import("minimxml/src");
-const ns = new Namespaces();
+const { NsRegistry } = await import("minimxml/src");
+const ns = new NsRegistry();
 
-expect(filter(idFilter("my_layer.id", ns), ns)).toBe(""
+expect(filter(idFilter("my_layer.id"))(ns)).toBe(""
   + `<fes:Filter>`
   +   `<fes:ResourceId rid="my_layer.id"/>`
   + `</fes:Filter>`
 );
 ```
  */
-export function filter(
-  predicates: Xml<typeof FES>[] | Xml<typeof FES>,
-  namespaces: Namespaces,
-): Xml<typeof FES> {
-  return tag(
-    namespaces.getOrInsert('fes' as Name, FES).qualify('Filter' as Name),
-    [],
-    ...(typeof predicates === 'string' ? [predicates] : predicates),
-  );
-}
+export const filter =
+  (predicates: Xml<typeof FES>[] | Xml<typeof FES>): ToXml<typeof FES> =>
+  (namespaces: NsRegistry): Xml<typeof FES> => {
+    return tag(
+      namespaces.getOrInsert('fes' as Name, FES).qualify('Filter' as Name),
+      [],
+      ...(typeof predicates === 'string' ? [predicates] : predicates),
+    )(namespaces);
+  };
 
 // TODO: add spatial, temporal filters

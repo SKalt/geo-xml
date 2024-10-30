@@ -3,15 +3,15 @@ import {
   attrs,
   escapeStr,
   type Name,
-  Namespaces,
+  NsRegistry,
   tag,
+  ToXml,
   type Xml,
-} from 'packages/minimxml/src';
+} from 'minimxml/src';
 import { FilterType } from './types';
 import { FES } from '.';
 
-const TODO = new Error('TODO');
-type FesExpr = Xml<typeof FES> & { readonly _expr: unique symbol };
+type FesExpr = ToXml<typeof FES> & { readonly _expr: unique symbol };
 
 /**
  * @see  {@link https://docs.ogc.org/is/09-026r2/09-026r2.html#38 | OGC 09-026r2 section 7.5}
@@ -22,11 +22,11 @@ type FesExpr = Xml<typeof FES> & { readonly _expr: unique symbol };
  */
 export const literal = (
   value: Xml<any>,
-  namespaces: Namespaces,
+  namespaces: NsRegistry,
   options: { type?: Name } = {},
 ): FesExpr => {
   const fes = namespaces.getOrInsert('fes' as Name, FES);
-  const result: Xml<typeof FES> = tag(
+  const result: ToXml<typeof FES> = tag(
     fes.qualify('Literal' as Name),
     attrs({ type: options.type }),
     value,
@@ -41,11 +41,11 @@ export const literal = (
  */
 export const func = (
   name: string,
-  namespaces: Namespaces,
+  namespaces: NsRegistry,
   args: Xml<typeof FES>[],
-): Xml<typeof FES> => {
+): ToXml<typeof FES> => {
   const fes = namespaces.getOrInsert('fes' as Name, FES);
-  const result: Xml<typeof FES> = tag(
+  const result: ToXml<typeof FES> = tag(
     fes.qualify('Function' as Name),
     attrs({ name }),
     ...args,
@@ -62,10 +62,10 @@ export const func = (
  */
 export const valueReference = (
   ref: string,
-  namespaces: Namespaces,
-): Xml<typeof FES> => {
+  namespaces: NsRegistry,
+): ToXml<typeof FES> => {
   const fes = namespaces.getOrInsert('fes' as Name, FES);
-  const result: Xml<typeof FES> = tag(
+  const result: ToXml<typeof FES> = tag(
     fes.qualify('ValueReference' as Name),
     [],
     escapeStr(ref),
@@ -92,9 +92,9 @@ const _binaryComparison =
   (
     a: FesExpr,
     b: FesExpr,
-    namespaces: Namespaces,
+    namespaces: NsRegistry,
     options: { matchCase?: boolean; matchAction?: MatchActionType } = {},
-  ): Xml<typeof FES> => {
+  ): ToXml<typeof FES> => {
     const fes = namespaces.getOrInsert('fes' as Name, FES);
     const { matchAction, matchCase } = options;
     return tag(fes.qualify(op), attrs({ matchCase, matchAction }), a, b);
@@ -122,14 +122,14 @@ export const propertyIsGreaterThanOrEqualTo = _binaryComparison(
 export const propertyIsLike = (
   property: string,
   value: string,
-  namespaces: Namespaces,
+  namespaces: NsRegistry,
   options: {
     matchCase?: boolean;
     wildCard?: string;
     singleChar?: string;
     escapeChar?: string;
   } = { wildCard: '*', singleChar: '#', escapeChar: '!' },
-): Xml<typeof FES> => {
+): ToXml<typeof FES> => {
   const { matchCase, wildCard, singleChar, escapeChar } = options;
   const fes = namespaces.getOrInsert('fes' as Name, FES);
 
@@ -147,17 +147,17 @@ export const propertyIsLike = (
  */
 export const propertyIsNull = (
   property: FesExpr,
-  namespaces: Namespaces,
-): Xml<typeof FES> => {
+  namespaces: NsRegistry,
+): ToXml<typeof FES> => {
   const fes = namespaces.getOrInsert('fes' as Name, FES);
   return tag(fes.qualify('PropertyIsNull' as Name), [], property);
 };
 
 export const propertyIsNil = (
   property: FesExpr,
-  namespaces: Namespaces,
+  namespaces: NsRegistry,
   nilReason?: string,
-): Xml<typeof FES> => {
+): ToXml<typeof FES> => {
   const fes = namespaces.getOrInsert('fes' as Name, FES);
   return tag(
     fes.qualify('PropertyIsNil' as Name),
@@ -170,8 +170,8 @@ export const propertyIsBetween = (
   property: FesExpr,
   lower: FesExpr, // inclusive
   upper: FesExpr, // inclusive
-  namespaces: Namespaces,
-) => {
+  namespaces: NsRegistry,
+): ToXml<typeof FES> => {
   const fes = namespaces.getOrInsert('fes' as Name, FES);
   return tag(
     fes.qualify('PropertyIsBetween' as Name),
@@ -183,10 +183,11 @@ export const propertyIsBetween = (
 };
 
 /** construct a `<fes:ResourceId rid=??/>` element */
-export const idFilter = (
-  id: string,
-  namespaces: Namespaces,
-): Xml<typeof FES> => {
-  const fes = namespaces.getOrInsert('fes' as Name, FES);
-  return tag(fes.qualify('ResourceId' as Name), [attr('rid', escapeStr(id))]);
-};
+export const idFilter =
+  (id: string): ToXml<typeof FES> =>
+  (namespaces: NsRegistry): Xml<typeof FES> => {
+    const fes = namespaces.getOrInsert('fes' as Name, FES);
+    return tag(fes.qualify('ResourceId' as Name), [attr('rid', escapeStr(id))])(
+      namespaces,
+    );
+  };

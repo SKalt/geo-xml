@@ -129,25 +129,32 @@ export const concat = <Schema extends string = any>(
 
 export const tagFn =
   <Schema extends string>(tagName: Tag<Schema>) =>
-  <Inner extends string>(attrs: Attr[], ...inner: Xml<Inner>[]) =>
+  <Inner extends string>(attrs: Attr[], ...inner: ToXml<Inner>[]) =>
     tag<Schema, Inner>(tagName, attrs, ...inner);
 
-export function tag<Schema extends string, InnerSchemata extends string = any>(
-  tag: Tag<Schema>,
-  attrs: Attr[],
-  ...inner: Xml<InnerSchemata>[]
-): Xml<Schema> {
-  let _attrs = attrs.sort().join(' ');
-  if (_attrs) _attrs = ' ' + _attrs;
-  let result =
-    inner.length ?
-      `<${tag}${_attrs}>${concat(...inner)}</${tag}>`
-    : `<${tag}${_attrs}/>`;
-  return result as Xml<Schema>;
-}
+/**
+ * ToXml is the return type of XML-generating functions that need access to a mutable namespace registry.
+ */
+export type ToXml<T extends string> = (ns: NsRegistry) => Xml<T>;
+
+export const tag =
+  <Schema extends string, InnerSchemata extends string = any>(
+    tag: Tag<Schema>,
+    attrs: Attr[],
+    ...inner: Array<ToXml<InnerSchemata> | Xml<InnerSchemata>>
+  ): ToXml<Schema> =>
+  (ns: NsRegistry): Xml<Schema> => {
+    let _attrs = attrs.sort().join(' ');
+    if (_attrs) _attrs = ' ' + _attrs;
+    let result =
+      inner.length ?
+        `<${tag}${_attrs}>${concat(...inner.map((x) => (typeof x === 'function' ? x(ns) : x)))}</${tag}>`
+      : `<${tag}${_attrs}/>`;
+    return result as Xml<Schema>;
+  };
 
 /** cache validated uris, names, xmlns declarations, tag constructors. */
-export class Namespaces {
+export class NsRegistry {
   private uriToName: Record<AttrValue, Name>;
   private nameToUri: Record<Name, AttrValue>;
   private nameToCache: Record<Name, Namespace<string>>; // and this could be omitted
@@ -182,8 +189,8 @@ export class Namespaces {
     return this.uriToName[uri as AttrValue] || null;
   }
 
-  private clone(): Namespaces {
-    let clone = new Namespaces();
+  private clone(): NsRegistry {
+    let clone = new NsRegistry();
     Object.assign(clone.uriToName, this.uriToName); // make sure to break object references
     Object.assign(clone.nameToUri, this.nameToUri);
     return clone;
@@ -198,11 +205,11 @@ export class Namespaces {
   /**
    * update the namespace in-place.
    * @param nameToUriMap a map of names to URIs, e.g. `{ "wfs": "http://www.opengis.net/wfs/2.0"}`
-   * @returns a new Namespaces instance with the given namespaces added
+   * @returns a new NsRegistry instance with the given namespaces added
    * @throws if a name is already registered with a different URI
    * @throws if a key isn't a valid XML name
    */
-  bulkUpdate(nameToUriMap: Record<string, string>): Namespaces {
+  bulkUpdate(nameToUriMap: Record<string, string>): NsRegistry {
     for (let [_ns, _uri] of Object.entries(nameToUriMap)) {
       let ns = name(_ns);
       let uri = value(_uri);
@@ -218,7 +225,7 @@ export class Namespaces {
     }
     return this;
   }
-  extend(nameToUriMap: Record<string, string>): Namespaces {
+  extend(nameToUriMap: Record<string, string>): NsRegistry {
     return this.clone().bulkUpdate(nameToUriMap);
   }
   xmlnsAttrs(): Attr[] {

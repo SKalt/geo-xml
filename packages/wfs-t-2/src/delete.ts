@@ -1,5 +1,4 @@
-import { LayerParam } from './typeDefs';
-import { Name, Namespaces, tag, type Xml, attrs } from 'minimxml/src';
+import { Name, NsRegistry, tag, type Xml, attrs, ToXml } from 'minimxml/src';
 import { WFS } from './xml';
 import { FES } from 'geojson-to-fes-2/src';
 
@@ -13,23 +12,28 @@ The `_` suffix is added to avoid conflict with the `delete` keyword.
 @param namespaces a mutable object collecting XML namespace declarations.
 @example
 ```ts @import.meta.vitest
-const { Namespaces } = await import('minimxml/src');
-const namespaces = new Namespaces();
+const { NsRegistry } = await import('minimxml/src');
+const namespaces = new NsRegistry();
 const layer = 'myLayer';
 const filter = `<fes:Filter><fes:ResourceId rid="${layer}.id"/></fes:Filter>`;
 
-expect(delete_(filter, { namespaces, layer })).toBe(
+expect(delete_(filter, layer)(namespaces)).toBe(
   `<wfs:Delete typeName="myLayer">${filter}</wfs:Delete>`
 );
 ```
 */
-export function delete_(
-  // TODO: allow passing Features<G, P, Extensions> instead of filter
-  filter: Xml<typeof FES>,
-  { layer, namespaces }: LayerParam & { namespaces: Namespaces },
-): Xml<typeof WFS> {
-  const wfs = namespaces.getOrInsert('wfs' as Name, WFS);
-  if (!layer) throw new Error('typeName or layer must be provided');
+export const delete_ =
+  (
+    // TODO: allow passing Features<G, P, Extensions> instead of filter?
+    filter: ToXml<typeof FES>,
+    layer: string | number | bigint,
+  ): ToXml<typeof WFS> =>
+  (namespaces: NsRegistry): Xml<typeof WFS> => {
+    if (!layer) throw new Error('typeName or layer must be provided');
 
-  return tag(wfs.qualify('Delete' as Name), attrs({ typeName: layer }), filter);
-}
+    return tag(
+      namespaces.getOrInsert('wfs' as Name, WFS).qualify('Delete' as Name),
+      attrs({ typeName: layer }),
+      filter,
+    )(namespaces);
+  };
