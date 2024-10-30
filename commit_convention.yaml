@@ -4,4 +4,4 @@
 #   - type: description of what the short-form "type" means
 scopes:
   gml: changes to packages/geojson-to-gml-3
-  
+  deps: dependencies
