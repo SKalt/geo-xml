@@ -1,2 +1,0 @@
-test:
-	nx run test
