@@ -3,5 +3,8 @@
 # commit_types:
 #   - type: description of what the short-form "type" means
 scopes:
-  gml: changes to packages/geojson-to-gml-3
-  deps: dependencies
+  deps: changes to dependencies
+  gml: changes to packages/gml-3
+  xml: changes to packages/minimxml
+  wfs: changes to packages/wfs-3
+  fes: changes to packages/fes-2

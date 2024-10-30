@@ -70,7 +70,7 @@ expect(actual).toBe("" +
 */
 export const transaction =
   (
-    actions: ToXml<typeof WFS>[],
+    actions: ToXml<typeof WFS>[], // require callbacks to ensure all namespaces are registered
     options: TransactionOpts &
       Partial<SrsNameOpt> & {
         schemaLocations?: Record<string, string>; // TODO: refine?
@@ -106,6 +106,6 @@ export const transaction =
     return tag(
       wfs.qualify('Transaction' as Name),
       txnAttrs.sort(),
-      ...(inner ? [(_: any) => inner] : []),
+      inner,
     )(namespaces);
   };
