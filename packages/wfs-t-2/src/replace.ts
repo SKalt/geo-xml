@@ -16,6 +16,7 @@ import { type Converter } from 'geojson-to-gml-3';
 import type { AttValueStr } from 'minimxml';
 import { FES } from 'geojson-to-fes-2';
 
+/*!! use-example file://./../tests/replace.example.ts */
 /**
 Returns a string wfs:Replace action. a `wfs:Replace` action is a request to
 replace one or more entire features.
@@ -26,33 +27,41 @@ replace one or more entire features.
 
 @example
 ```ts
-const { NsRegistry } = await import("minimxml/src");
-const { translateFeatures } = await import("./utils");
-const { filter, idFilter } = await import("geojson-to-fes-2/src");
-const ns = new NsRegistry();
-const features = [{id: 13, properties: {TYPE: "rainbow"}, geometry: null}];
-const layer = "tasmania_roads";
-const actual = replace(
-  features,
-  {
-    filter: filter(
-      features.map(f => idFilter(`tasmania_roads.${f.id}`, ns)),
-      ns,
-    ),
-    nsUri: "http://www.openplans.org/topp"
-  },
-  {layer},
-)(ns);
+import { NsRegistry } from 'minimxml';
+import { filter, idFilter } from 'geojson-to-fes-2';
+import { replace } from '../src/replace.js';
+import { Feature } from 'geojson';
+import { test, expect } from 'vitest';
 
-expect(actual).toBe(""
-  + `<wfs:Replace>`
-  +   `<topp:tasmania_roads gml:id="tasmania_roads.13">`
-  +     `<topp:TYPE>rainbow</topp:TYPE>`
-  +   `</topp:tasmania_roads>`
-  +   `<fes:Filter><fes:ResourceId rid="tasmania_roads.13"/></fes:Filter>`
-  + `</wfs:Replace>`
-)
+test('replacing a feature by id', () => {
+  const ns = new NsRegistry();
+  const f: Feature<null> = {
+    type: 'Feature',
+    id: 13,
+    properties: { TYPE: 'rainbow' },
+    geometry: null,
+  };
+  const layer = 'tasmania_roads';
+  const nsUri = 'http://www.openplans.org/topp' as const;
+  const actual = replace([f], {
+    filter: filter(idFilter(`${layer}.${f.id}`)),
+    nsUri,
+    convertGeom: null,
+  })(ns);
 
+  expect(actual).toBe(''
+    + `<wfs:Replace>`
+    +   `<topp:topp gml:id="topp.13">`
+    +     `<topp:TYPE>`
+    +       `rainbow`
+    +     `</topp:TYPE>`
+    +   `</topp:topp>`
+    +   `<fes:Filter>`
+    +     `<fes:ResourceId rid="tasmania_roads.13"/>`
+    +   `</fes:Filter>`
+    + `</wfs:Replace>`
+  );
+});
 ```
 
 */
@@ -68,7 +77,7 @@ export const replace =
     params: {
       filter: ToXml<typeof FES>;
       nsUri: AttValueStr<Schema> | AttrValue;
-      convertGeom: G extends Geometry ? Converter<G> : undefined;
+      convertGeom: G extends Geometry ? Converter<G> : null | undefined;
     },
     options: Partial<SrsNameOpt & InputFormatOpt & NsOpt<Ns>> = {},
     // TODO: optional convertProps

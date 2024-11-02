@@ -81,7 +81,7 @@ const translateFeature =
     f: Feature<G, P> & Extensions,
     params: {
       ns: Namespace<any, Schema>;
-      convertGeom: G extends Geometry ? Converter<G> : undefined;
+      convertGeom: G extends Geometry ? Converter<G> : undefined | null;
     },
     options: Partial<
       SrsNameOpt &
@@ -160,7 +160,7 @@ export const translateFeatures =
     params: {
       // TODO: demote to option, fall back to parsing nsUri
       nsUri: AttrValue | AttValueStr<SchemaUri>;
-      convertGeom: G extends Geometry ? Converter<G> : undefined;
+      convertGeom: G extends Geometry ? Converter<G> : null | undefined;
     },
     options: Partial<
       SrsNameOpt &

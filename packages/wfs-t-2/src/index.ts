@@ -51,6 +51,70 @@ element strings to wrap in a transaction.
 @return A wfs:transaction wrapping the input actions.
 @example
 ```ts
+import { test, expect } from 'vitest';
+import { insert, transaction } from 'geojson-to-wfs-t-2';
+import { point, geometry } from 'geojson-to-gml-3';
+import { Feature, Point } from 'geojson';
+
+const nsUri = 'http://example.com/myFeature' as const;
+
+test('empty transaction', () => {
+  const actual = transaction([], { srsName: 'EPSG:4326' })();
+  expect(actual).toBe(''
+    + `<wfs:Transaction service="WFS" srsName="EPSG:4326" version="2.0.2" xmlns:wfs="http://www.opengis.net/wfs/2.0"/>`
+  );
+});
+
+const f: Feature<Point, { a: number }> & { lyr: { id: string } } = {
+  type: 'Feature',
+  geometry: { type: 'Point', coordinates: [0, 0] },
+  properties: { a: 1 },
+  lyr: { id: 'myLayer' },
+};
+
+test('use a specific geojson-to-gml converter', () => {
+  const actual = transaction([insert(f, { nsUri, convertGeom: point })])();
+  expect(actual).toBe(''
+    + `<wfs:Transaction service="WFS" version="2.0.2" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:myFeature="http://example.com/myFeature" xmlns:wfs="http://www.opengis.net/wfs/2.0">`
+    +   `<wfs:Insert>`
+    +     `<myFeature:myFeature>`
+    +       `<myFeature:geometry>`
+    +         `<gml:Point>`
+    +           `<gml:pos>`
+    +             `0 0`
+    +           `</gml:pos>`
+    +         `</gml:Point>`
+    +       `</myFeature:geometry>`
+    +       `<myFeature:a>`
+    +         `1`
+    +       `</myFeature:a>`
+    +     `</myFeature:myFeature>`
+    +   `</wfs:Insert>`
+    + `</wfs:Transaction>`
+  );
+});
+
+test('when in doubt, use the default geojson-to-gml converter', () => {
+  const actual = transaction([insert(f, { nsUri, convertGeom: geometry })])();
+  expect(actual).toBe(''
+    + `<wfs:Transaction service="WFS" version="2.0.2" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:myFeature="http://example.com/myFeature" xmlns:wfs="http://www.opengis.net/wfs/2.0">`
+    +   `<wfs:Insert>`
+    +     `<myFeature:myFeature>`
+    +       `<myFeature:geometry>`
+    +         `<gml:Point>`
+    +           `<gml:pos>`
+    +             `0 0`
+    +           `</gml:pos>`
+    +         `</gml:Point>`
+    +       `</myFeature:geometry>`
+    +       `<myFeature:a>`
+    +         `1`
+    +       `</myFeature:a>`
+    +     `</myFeature:myFeature>`
+    +   `</wfs:Insert>`
+    + `</wfs:Transaction>`
+  );
+});
 ```
 */
 export const transaction =

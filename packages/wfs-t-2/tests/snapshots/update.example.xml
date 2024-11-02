@@ -1,0 +1,1 @@
+<wfs:Update typeName="tasmania_roads"><wfs:Property><wfs:ValueReference action="replace">TYPE</wfs:ValueReference><wfs:Value>rainbow</wfs:Value></wfs:Property><fes:Filter><fes:ResourceId rid="tasmania_roads.id"/></fes:Filter></wfs:Update>

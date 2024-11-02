@@ -21,6 +21,7 @@ import { type Features } from './index.js';
 import { type Converter } from 'geojson-to-gml-3';
 import { type AttValueStr, type NameStr } from 'minimxml';
 
+/*!! use-example file://./../tests/insert.example.ts */
 /**
 Returns a wfs:Insert tag wrapping a translated feature
 @function
@@ -30,25 +31,36 @@ inputFormat, srsName, handle for the wfs:Insert tag.
 @return a `wfs:Insert` string.
 @example
 ```ts
-const { NsRegistry } = await import("minimxml/src");
-// const {} = await import("geojson-to-gml-3/src");
-const namespaces = new NsRegistry();
-const ns = "topp";
-const layer = "tasmania_roads";
-const features = [{id: 13, properties: {TYPE: "rainbow"}, geometry: null}];
-const actual = insert(
-  features,
-  { ns: "topp", nsUri: "http://www.openplans.org/topp", },
-  {layer},
-)(namespaces);
+import { NsRegistry } from 'minimxml';
+import { type Feature } from 'geojson';
+import { insert } from '../src/insert.js';
+import { test, expect } from 'vitest';
 
-expect(actual).toBe(""
-  + `<wfs:Insert>`
-  +   `<topp:tasmania_roads gml:id="tasmania_roads.13">`
-  +     `<topp:TYPE>rainbow</topp:TYPE>`
-  +   `</topp:tasmania_roads>`
-  + `</wfs:Insert>`
-)
+test('inserting a feature', () => {
+  const f: Feature<null> = {
+    type: 'Feature',
+    id: 13,
+    properties: { TYPE: 'rainbow' },
+    geometry: null,
+  };
+  const layer = 'tasmania_roads';
+  const nsUri = 'http://www.openplans.org/topp' as const;
+  const actual = insert(
+    f,
+    { nsUri, convertGeom: null },
+    { layer },
+  )(new NsRegistry());
+
+  expect(actual).toBe(''
+    + `<wfs:Insert>`
+    +   `<topp:tasmania_roads gml:id="tasmania_roads.13">`
+    +     `<topp:TYPE>`
+    +       `rainbow`
+    +     `</topp:TYPE>`
+    +   `</topp:tasmania_roads>`
+    + `</wfs:Insert>`
+  );
+});
 ```
 */
 export const insert =
@@ -62,7 +74,7 @@ export const insert =
     f: Features<G, P, Extensions>,
     params: {
       nsUri: AttrValue | AttValueStr<SchemaUri>;
-      convertGeom: G extends Geometry ? Converter<G> : undefined;
+      convertGeom: G extends Geometry ? Converter<G> : null | undefined;
     },
     options: Partial<
       InputFormatOpt &

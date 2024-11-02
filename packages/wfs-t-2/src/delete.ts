@@ -9,6 +9,7 @@ import {
 import { WFS } from './xml.js';
 import { FES } from 'geojson-to-fes-2';
 
+/*!! use-example file://./../tests/delete.example.ts */
 /**
 Creates a `wfs:Delete` action using a `fes:Filter`.
 The `_` suffix is added to avoid conflict with the `delete` keyword.
@@ -19,14 +20,24 @@ The `_` suffix is added to avoid conflict with the `delete` keyword.
 @param namespaces a mutable object collecting XML namespace declarations.
 @example
 ```ts
-const { NsRegistry } = await import('minimxml/src');
-const namespaces = new NsRegistry();
-const layer = 'myLayer';
-const filter = `<fes:Filter><fes:ResourceId rid="${layer}.id"/></fes:Filter>`;
+import { delete_, transaction } from 'geojson-to-wfs-t-2';
+import { filter, idFilter } from 'geojson-to-fes-2';
+import { test, expect } from 'vitest';
 
-expect(delete_(filter, layer)(namespaces)).toBe(
-  `<wfs:Delete typeName="myLayer">${filter}</wfs:Delete>`
-);
+const layer: string = 'myLayer';
+test('deleting a feature by id', () => {
+  const del = delete_(layer, filter(idFilter('myLayer.id')));
+  const actual = transaction([del])();
+  expect(actual).toBe(''
+    + `<wfs:Transaction service="WFS" version="2.0.2" xmlns:fes="http://www.opengis.net/fes/2.0" xmlns:wfs="http://www.opengis.net/wfs/2.0">`
+    +   `<wfs:Delete typeName="myLayer">`
+    +     `<fes:Filter>`
+    +       `<fes:ResourceId rid="myLayer.id"/>`
+    +     `</fes:Filter>`
+    +   `</wfs:Delete>`
+    + `</wfs:Transaction>`
+  );
+});
 ```
 */
 export const delete_ =

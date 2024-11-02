@@ -7,9 +7,9 @@ import {
   escapeStr,
   empty,
   type Xml,
-  type Attr,
-  ToXml,
+  type ToXml,
   concat,
+  type NameStr,
 } from 'minimxml';
 
 import { WFS, XSI } from './xml.js';
@@ -21,11 +21,11 @@ See {@link http://docs.opengeospatial.org/is/09-025r2/09-025r2.html#286 | OGC 09
 */
 type Action = 'replace' | 'insertBefore' | 'insertAfter' | 'remove';
 
+// TODO: rename
 const _handlePropertyValue =
+  (action: Action) =>
   (
-    // TODO: rename
     value: ScalarValue,
-    action: Action,
     valueTag: ReturnType<typeof tagFn<typeof WFS>>,
   ): ToXml<typeof WFS> =>
   (namespaces: NsRegistry): Xml<typeof WFS> => {
@@ -49,22 +49,10 @@ const getTags = (namespaces: NsRegistry) => {
   return { valueTag, keyTag, propertyTag, updateTag };
 };
 
-// Note: <wfs:Update typeName="topp:tasmania_roads">
-//   <wfs:Property></> // unbounded number
-// THEN
-//   <fes:Filter></> // optional
-
-// <wfs:Update typeName="topp:tasmania_roads">
-//   <wfs:Property>
-//     <wfs:ValueReference>NAME</wfs:ValueReference>
-//     <wfs:Value>new name</wfs:Value>
-//   </wfs:Property>
-//   <fes:Filter>
-//     <fes:PropertyIsEqualTo>
-
 type Input = {
-  selectors: ToXml<typeof FES>;
-  properties: Record<
+  /** a `fes:Filter` query that matches each feature to update */
+  filter: ToXml<typeof FES>;
+  properties?: Record<
     string, // the property name
     ScalarValue // the property value
   >;
@@ -73,20 +61,66 @@ type Input = {
     ToXml<typeof GML> // the geometry value as GML
   >;
   action?: Action;
+  /** should be a valid XML name */
+  layer: string | number | bigint;
 };
 
+/*!! use-example file://./../tests/update.example.ts */
+/**
+@param input the `fes:Filter` to select the features to update, along with the property values to replace.
+@param layer which layer to update. Must be a valid XML name matching `[A-Za-z_:][A-Za-z_:0-9_.-]*`.
+@returns a closure that takes a `NsRegistry` tp produce a final string `wfs:Update` action.
+@example
+```ts
+import { filter, idFilter } from 'geojson-to-fes-2';
+import { update } from '../src/update.js';
+import { test, expect } from 'vitest';
+import { NsRegistry } from 'minimxml';
+
+test('simple update', () => {
+  const layer = 'tasmania_roads' as const;
+  const actual = update({
+    filter: filter(idFilter(`${layer}.id`)),
+    properties: { TYPE: 'rainbow' },
+    action: 'replace', // this is the default
+    layer,
+  })(new NsRegistry());
+  expect(actual).toBe(''
+    + `<wfs:Update typeName="tasmania_roads">`
+    +   `<wfs:Property>`
+    +     `<wfs:ValueReference action="replace">`
+    +       `TYPE`
+    +     `</wfs:ValueReference>`
+    +     `<wfs:Value>`
+    +       `rainbow`
+    +     `</wfs:Value>`
+    +   `</wfs:Property>`
+    +   `<fes:Filter>`
+    +     `<fes:ResourceId rid="tasmania_roads.id"/>`
+    +   `</fes:Filter>`
+    + `</wfs:Update>`
+  );
+});
+```
+ */
 export const update =
-  (input: Input, layer: string | number | bigint): ToXml<typeof WFS> =>
+  (input: Input): ToXml<typeof WFS> =>
   (namespaces: NsRegistry): Xml<typeof WFS> => {
-    const { selectors, properties, action = 'replace', geometry } = input;
+    const {
+      filter: selectors,
+      properties,
+      action = 'replace',
+      geometry,
+      layer,
+    } = input;
     const { keyTag, valueTag, propertyTag, updateTag } = getTags(namespaces);
-    let propertyUpdates: ToXml<typeof WFS>[] = Object.entries(properties)
+    let propertyUpdates: ToXml<typeof WFS>[] = Object.entries(properties ?? {})
       .map(
         ([key, value]): ToXml<typeof WFS> =>
           propertyTag(
             [],
             keyTag(attrs({ action }), (_) => escapeStr(key)),
-            _handlePropertyValue(value, action, valueTag),
+            _handlePropertyValue(action)(value, valueTag),
           ),
       )
       .concat(
@@ -106,6 +140,7 @@ export const update =
     )(namespaces);
   };
 
+/*!! use-example file://./../tests/bulkUpdate.example.ts */
 /**
 Updates the input features in bulk with params.properties or by id.
 @see {@link http://docs.opengeospatial.org/is/09-025r2/09-025r2.html#283 | OGC 09-025r2 § 15.2.5}
@@ -115,35 +150,49 @@ Updates the input features in bulk with params.properties or by id.
 
 @example
 ```ts
-const { NsRegistry } = await import("minimxml/src");
-const { filter, idFilter } = await import("geojson-to-fes-2/src");
-const namespaces = new NsRegistry();
-const features = [{
-  id: 13,
-  properties: { TYPE: "dirt" },
-  geometry: null,
-}]
-const layer = "tasmania_roads";
-const actual = bulkUpdate([{
-  selectors: filter(features.map(f => idFilter(`${layer}.${f.id}`))),
-  properties: { TYPE: "rainbow" },
-  action: "replace",
-}], layer)(namespaces);
+import { filter, idFilter } from 'geojson-to-fes-2';
+import { bulkUpdate } from '../src/update.js';
+import { test, expect } from 'vitest';
+import { NsRegistry } from 'minimxml';
 
-expect(actual).toBe(""
-  + `<wfs:Update typeName="tasmania_roads">`
-  +   `<wfs:Property>`
-  +     `<wfs:ValueReference action="replace">TYPE</wfs:ValueReference>`
-  +     `<wfs:Value>rainbow</wfs:Value>`
-  +   `</wfs:Property>`
-  +   `<fes:Filter>`
-  +     `<fes:ResourceId rid="tasmania_roads.13"/>`
-  +   `</fes:Filter>`
-  + `</wfs:Update>`
-);
+test('bulk update', () => {
+  const actual = bulkUpdate([
+    {
+      action: 'replace', // this is the default
+      layer: 'one_layer',
+      filter: filter(idFilter(`one_layer.123`)),
+      properties: { unicorn: 'rainbow' },
+    },
+    {
+      action: 'remove',
+      filter: filter(idFilter(`other_layer.456`)),
+      layer: 'other_layer',
+    },
+  ])(new NsRegistry());
+  expect(actual).toBe(''
+    + `<wfs:Update typeName="one_layer">`
+    +   `<wfs:Property>`
+    +     `<wfs:ValueReference action="replace">`
+    +       `unicorn`
+    +     `</wfs:ValueReference>`
+    +     `<wfs:Value>`
+    +       `rainbow`
+    +     `</wfs:Value>`
+    +   `</wfs:Property>`
+    +   `<fes:Filter>`
+    +     `<fes:ResourceId rid="one_layer.123"/>`
+    +   `</fes:Filter>`
+    + `</wfs:Update>`
+    + `<wfs:Update typeName="other_layer">`
+    +   `<fes:Filter>`
+    +     `<fes:ResourceId rid="other_layer.456"/>`
+    +   `</fes:Filter>`
+    + `</wfs:Update>`
+  );
+});
 ```
 */
 export const bulkUpdate =
-  (inputs: Input[], layer: string | number | bigint): ToXml<typeof WFS> =>
+  (inputs: Input[]): ToXml<typeof WFS> =>
   (namespaces: NsRegistry): Xml<typeof WFS> =>
-    concat(...inputs.map((input) => update(input, layer)(namespaces)));
+    concat(...inputs.map((input) => update(input)(namespaces)));

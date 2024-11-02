@@ -1,0 +1,1 @@
+<wfs:Transaction service="WFS" version="2.0.2" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:myFeature="http://example.com/myFeature" xmlns:wfs="http://www.opengis.net/wfs/2.0"><wfs:Insert><myFeature:myFeature><myFeature:geometry><gml:Point><gml:pos>0 0</gml:pos></gml:Point></myFeature:geometry><myFeature:a>1</myFeature:a></myFeature:myFeature></wfs:Insert></wfs:Transaction>

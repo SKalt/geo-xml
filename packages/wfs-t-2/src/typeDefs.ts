@@ -1,8 +1,7 @@
 // TODO: rename to params.ts
 import { GeoJsonProperties, type Feature } from 'geojson';
-import { Name, Xml } from 'packages/minimxml/src';
-import { FES } from './filter';
-import { NameStr } from 'packages/minimxml/src/parse';
+import type { Name, Xml, NameStr } from 'minimxml';
+import { FES } from 'geojson-to-fes-2';
 
 export type SrsNameOpt = {
   /** srsName, as specified at
