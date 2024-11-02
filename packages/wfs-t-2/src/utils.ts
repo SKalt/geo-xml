@@ -3,21 +3,23 @@
  * @module utils
  */
 
-import { GML, type Converter } from 'geojson-to-gml-3/src';
+import { GML, type Converter } from 'geojson-to-gml-3';
 
 import {
   type Xml,
   NsRegistry,
   Namespace,
   type Name,
+  type NameStr,
   tag,
+  type AttValueStr,
   type AttrValue,
   isName,
   type Attr,
   escape,
   attr,
   ToXml,
-} from 'minimxml/src';
+} from 'minimxml';
 import type { Feature, Geometry, GeoJsonProperties } from 'geojson';
 import type {
   GeometryNameOpt as GeometryNameParam,
@@ -26,7 +28,6 @@ import type {
   GetLayerCallback,
 } from './typeDefs.js';
 import type { Features } from './index.js';
-import { AttValueStr, NameStr } from 'packages/minimxml/src/parse';
 import { XSI } from './xml.js';
 
 export const asArray = <
@@ -44,6 +45,7 @@ const mustBeName = (n: string, id = ''): Name => {
   if (isName(n)) return n;
   else throw new Error(`${id} is not a valid XML name: '${n}'`);
 };
+
 const layerToName = (layer: string): Name => mustBeName(layer, 'layer');
 
 const getGeomName = ({
@@ -79,7 +81,6 @@ const translateFeature =
     f: Feature<G, P> & Extensions,
     params: {
       ns: Namespace<any, Schema>;
-
       convertGeom: G extends Geometry ? Converter<G> : undefined;
     },
     options: Partial<
@@ -95,9 +96,10 @@ const translateFeature =
     const { ns, convertGeom } = params;
     const { srsName, getLayer } = options;
     let { layer } = options;
-    if (!layer && !getLayer)
-      throw new Error('layer or getLayer must be provided');
-    layer = layer ?? getLayer!(f);
+    if (!layer) {
+      if (getLayer) layer = getLayer(f);
+      else layer = mustBeName(ns.uri.split('/').pop() ?? '', 'layer');
+    }
     const geometryName = getGeomName(options);
     const kvp = []; // necessary since we man have neither geometry nor properties
     if (f.geometry !== null) {

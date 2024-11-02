@@ -19,7 +19,7 @@ import {
   tagFn,
   ToXml,
   Xml,
-} from 'minimxml/src';
+} from 'minimxml';
 import {
   type Converter,
   CoordinateOrder,
@@ -28,7 +28,7 @@ import {
   type MultiGeometry,
   type Params,
   ToGml,
-} from '.';
+} from './index.js';
 
 export type NsParam = {
   /** the qualified name that points to the xmlns with the value of "http://www.opengis.net/gml/3.2" */
@@ -112,6 +112,7 @@ export const withGmlNamespace = /* @__PURE__ */ <Geom extends Geometry>(
 /* @__PURE__ */
 export const useCoords =
   /* @__PURE__ */
+
 
     <Geom extends Exclude<Geometry, GeometryCollection>>(
       fn: CoordinateConverter<Geom>,

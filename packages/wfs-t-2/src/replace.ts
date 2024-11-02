@@ -1,6 +1,6 @@
-import type { Features } from '.';
-import { InputFormatOpt, NsOpt, SrsNameOpt } from './typeDefs';
-import { asArray, translateFeatures } from './utils';
+import type { Features } from './index.js';
+import { InputFormatOpt, NsOpt, SrsNameOpt } from './typeDefs.js';
+import { asArray, translateFeatures } from './utils.js';
 import {
   attrs,
   type Name,
@@ -9,12 +9,12 @@ import {
   tag,
   AttrValue,
   ToXml,
-} from 'minimxml/src';
+} from 'minimxml';
 import type { GeoJsonProperties, Geometry } from 'geojson';
-import { WFS } from './xml';
-import { type Converter } from 'packages/gml-3/src';
-import type { AttValueStr, NameStr } from 'packages/minimxml/src/parse';
-import { FES } from 'geojson-to-fes-2/src';
+import { WFS } from './xml.js';
+import { type Converter } from 'geojson-to-gml-3';
+import type { AttValueStr } from 'minimxml';
+import { FES } from 'geojson-to-fes-2';
 
 /**
 Returns a string wfs:Replace action. a `wfs:Replace` action is a request to
@@ -25,7 +25,7 @@ replace one or more entire features.
 @return a string wfs:Replace action.
 
 @example
-```ts @import.meta.vitest
+```ts
 const { NsRegistry } = await import("minimxml/src");
 const { translateFeatures } = await import("./utils");
 const { filter, idFilter } = await import("geojson-to-fes-2/src");

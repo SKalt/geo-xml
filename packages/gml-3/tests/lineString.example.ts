@@ -1,6 +1,6 @@
 import { type LineString } from 'geojson';
 import { expect, test } from 'vitest';
-import { lineString } from '../src';
+import { lineString } from '../src/index.js';
 
 test('lineString', () => {
   const geom: LineString = {

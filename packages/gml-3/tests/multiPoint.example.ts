@@ -1,6 +1,6 @@
 import { type MultiPoint } from 'geojson';
 import { expect, test } from 'vitest';
-import { multiPoint } from '../src';
+import { multiPoint } from '../src/index.js';
 
 test('multiPoint', () => {
   const geom: MultiPoint = {

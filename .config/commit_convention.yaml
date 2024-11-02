@@ -8,3 +8,4 @@ scopes:
   xml: changes to packages/minimxml
   wfs: changes to packages/wfs-t-2
   fes: changes to packages/fes-2
+  scripts: changes to scripts/**/*

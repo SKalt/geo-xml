@@ -1,7 +1,8 @@
 {
   "name": "geojson-to-fes-2",
   "version": "1.0.0",
-  "description": "",
+  "description": "TODO",
+  "type": "module",
   "exports": {
     ".": {
       "import": "./dist/index.js",

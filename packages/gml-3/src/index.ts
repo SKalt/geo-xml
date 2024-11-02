@@ -25,7 +25,7 @@ import {
   attrs,
   type Xml,
   type Text,
-} from 'minimxml/src';
+} from 'minimxml';
 import {
   type CoordOrderParam,
   gmlGeometry,
@@ -42,7 +42,7 @@ import {
   type SrsNameParam,
   useCoords,
   withGmlNamespace,
-} from './internal';
+} from './internal.js';
 
 export const GML = 'http://www.opengis.net/gml/3.2' as const;
 
@@ -412,6 +412,7 @@ export const geometry: Converter<Geometry> =
   /* @__PURE__ */
   withGmlNamespace<Geometry>(gmlGeometry);
 
+/*!! use-example file://./../tests/geometryCollection.example.ts */
 /**
 Converts an input geojson GeometryCollection geometry to GML
 @function
@@ -450,5 +451,3 @@ expect(geometryCollection(geom)(new NsRegistry())).toBe(''
 export const geometryCollection: Converter<GeometryCollection> =
   /* @__PURE__ */
   withGmlNamespace<GeometryCollection>(gmlGeometryCollection);
-
-

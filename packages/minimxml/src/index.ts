@@ -3,7 +3,8 @@
  * @module xml
  */
 
-import { AttValueStr, NameStr } from './parse';
+import type { AttValueStr, NameStr } from './parse.js';
+export type { AttValueStr, NameStr };
 
 type NonEmpty<T extends string> = '' extends T ? never : T;
 
@@ -36,7 +37,7 @@ export const isName = (val: string): val is Name => asciiNamePattern.test(val);
 /** @throws if `val` is not a valid name */
 export const name = (val: string): Name => {
   if (isName(val)) return val;
-  throw new Error(`invalid name: '${val}'`);
+  throw new Error(`invalid XML name: '${val}'`);
 };
 
 const qualifyName = <Schema extends string = any>(

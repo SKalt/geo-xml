@@ -1,8 +1,9 @@
-import { attrs, Name, NsRegistry, tag, Text } from 'packages/minimxml/src';
-import { type ToGml, GML, type Gml } from '.';
+import { attrs, Name, NsRegistry, tag, Text } from 'minimxml';
+import { type ToGml, GML, type Gml } from './index.js';
 
 export const timePosition =
   /* @__PURE__ */
+
 
     (time: Date, id?: string): ToGml =>
     (r?: NsRegistry): Gml => {

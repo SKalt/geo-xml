@@ -1,6 +1,6 @@
 import { type Polygon } from 'geojson';
 import { expect, test } from 'vitest';
-import { polygon } from '../src';
+import { polygon } from '../src/index.js';
 
 test('polygon', () => {
   const geom: Polygon = {

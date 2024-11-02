@@ -7,19 +7,19 @@ import {
   tag,
   ToXml,
   Xml,
-} from 'minimxml/src';
-import { WFS } from './xml';
+} from 'minimxml';
+import { WFS } from './xml.js';
 import {
   GetLayerCallback,
   HandleOpt,
   InputFormatOpt,
   LayerParam,
   SrsNameOpt,
-} from './typeDefs';
-import { asArray, translateFeatures } from './utils';
-import { type Features } from '.';
-import { Converter } from 'packages/gml-3/src';
-import { AttValueStr, NameStr } from 'packages/minimxml/src/parse';
+} from './typeDefs.js';
+import { asArray, translateFeatures } from './utils.js';
+import { type Features } from './index.js';
+import { type Converter } from 'geojson-to-gml-3';
+import { type AttValueStr, type NameStr } from 'minimxml';
 
 /**
 Returns a wfs:Insert tag wrapping a translated feature
@@ -29,7 +29,7 @@ Returns a wfs:Insert tag wrapping a translated feature
 inputFormat, srsName, handle for the wfs:Insert tag.
 @return a `wfs:Insert` string.
 @example
-```ts @import.meta.vitest
+```ts
 const { NsRegistry } = await import("minimxml/src");
 // const {} = await import("geojson-to-gml-3/src");
 const namespaces = new NsRegistry();

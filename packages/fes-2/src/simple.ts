@@ -7,9 +7,9 @@ import {
   tag,
   ToXml,
   type Xml,
-} from 'minimxml/src';
-import { FilterType } from './types';
-import { FES } from '.';
+} from 'minimxml';
+import { FilterType } from './types.js';
+import { FES } from './index.js';
 
 type FesExpr = ToXml<typeof FES> & { readonly _expr: unique symbol };
 

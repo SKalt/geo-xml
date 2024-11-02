@@ -1,6 +1,6 @@
 import { type GeometryCollection } from 'geojson';
 import { expect, test } from 'vitest';
-import { geometryCollection } from '../src';
+import { geometryCollection } from '../src/index.js';
 
 test('geometryCollection', () => {
   const geom: GeometryCollection = {

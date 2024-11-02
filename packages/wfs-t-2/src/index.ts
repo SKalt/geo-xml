@@ -14,15 +14,15 @@ import {
   Attr,
   ToXml,
   concat,
-} from 'minimxml/src';
-import { WFS, XSI } from './xml';
+} from 'minimxml';
+import { WFS, XSI } from './xml.js';
 import type {
   Feature,
   FeatureCollection,
   GeoJsonProperties,
   Geometry,
 } from 'geojson';
-import { SrsNameOpt, TransactionOpts } from './typeDefs';
+import { SrsNameOpt, TransactionOpts } from './typeDefs.js';
 
 export type Features<
   G extends Geometry | null = Geometry,
@@ -36,10 +36,11 @@ export type Features<
 
 export type ScalarValue = string | number | boolean | null;
 
-export { delete_ } from './delete';
-export { insert } from './insert';
-export { bulkUpdate, update } from './update';
+export { delete_ } from './delete.js';
+export { insert } from './insert.js';
+export { bulkUpdate, update } from './update.js';
 
+/*!! use-example file://./../tests/txn.example.ts */
 /**
 Wraps the input actions in a wfs:Transaction.
 @see {@link https://docs.ogc.org/is/09-025r2/09-025r2.html#273 | OGC 09-025r2 § 15.2.2 }
@@ -49,23 +50,7 @@ element strings to wrap in a transaction.
  handle, inputFormat, version, and required nsAssignments, schemaLocations.
 @return A wfs:transaction wrapping the input actions.
 @example
-```ts @import.meta.vitest
-const { NsRegistry } = await import("minimxml/src");
-const namespaces = new NsRegistry();
-const actual =transaction([
-    // TODO: insert
-    // TODO: update
-    // TODO: delete
-], {srsName: "EPSG:4326"})(namespaces);
-
-expect(actual).toBe("" +
-  `<wfs:Transaction`
-  + ` service="WFS"`
-  + ` srsName="EPSG:4326"`
-  + ` version="2.0.2"`
-  + ` xmlns:wfs="http://www.opengis.net/wfs/2.0"`
-  + `/>`
-);
+```ts
 ```
 */
 export const transaction =
@@ -75,7 +60,7 @@ export const transaction =
       Partial<SrsNameOpt> & {
         schemaLocations?: Record<string, string>; // TODO: refine?
       } = {},
-  ): ToXml<typeof WFS> =>
+  ) =>
   (namespaces?: NsRegistry): Xml<typeof WFS> => {
     namespaces = namespaces ?? new NsRegistry();
     const wfs = namespaces.getOrInsert('wfs' as Name, WFS);

@@ -2,7 +2,17 @@
   "name": "minimxml",
   "version": "1.0.0",
   "description": "A small library for constructing valid XML.",
+  "type": "module",
   "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
     "test": "echo \"Warning: no tests specified\"",
     "build": "vite build"

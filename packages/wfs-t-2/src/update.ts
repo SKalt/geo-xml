@@ -1,5 +1,4 @@
-import { type ScalarValue } from '.';
-import { type LayerParam } from './typeDefs';
+import { type ScalarValue } from './index.js';
 import {
   attrs,
   type Name,
@@ -11,11 +10,11 @@ import {
   type Attr,
   ToXml,
   concat,
-} from 'minimxml/src';
+} from 'minimxml';
 
-import { WFS, XSI } from './xml';
-import { GML } from 'packages/gml-3/src';
-import { FES } from 'geojson-to-fes-2/src';
+import { WFS, XSI } from './xml.js';
+import { GML } from 'geojson-to-gml-3';
+import { FES } from 'geojson-to-fes-2';
 
 /**
 See {@link http://docs.opengeospatial.org/is/09-025r2/09-025r2.html#286 | OGC 09-025r2 § 15.2.5.2.1}.
@@ -115,7 +114,7 @@ Updates the input features in bulk with params.properties or by id.
 @return a string `wfs:Update` action for every input.
 
 @example
-```ts @import.meta.vitest
+```ts
 const { NsRegistry } = await import("minimxml/src");
 const { filter, idFilter } = await import("geojson-to-fes-2/src");
 const namespaces = new NsRegistry();

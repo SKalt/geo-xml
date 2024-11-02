@@ -1,6 +1,7 @@
 import { type MultiPolygon } from 'geojson';
 import { expect, test } from 'vitest';
-import { multiPolygon } from '../src';
+import { multiPolygon } from '../src/index.js';
+import { point } from 'geojson-to-gml-3';
 
 test('multiPolygon', () => {
   const geom: MultiPolygon = {
