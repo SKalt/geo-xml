@@ -24,7 +24,6 @@ export type Xml<Schema extends string> =
   : string & { readonly _Xml: unique symbol; readonly _Schema: Schema };
 
 export type Text = Xml<'text'>;
-// TODO: specific FesFilter type
 
 // restrict names to ASCII for simplicity
 const asciiNameStartChar = /[A-Za-z_:]/; // see https://www.w3.org/TR/REC-xml/#NT-NameStartChar
@@ -43,8 +42,7 @@ export const name = (val: string): Name => {
 const qualifyName = <Schema extends string = any>(
   ns: Name,
   tag: Name,
-): Tag<Schema> => // FIXME: figure out schema
-  `${ns}:${tag}` as Tag<Schema>;
+): Tag<Schema> => `${ns}:${tag}` as Tag<Schema>;
 
 export class Namespace<N extends string = string, Uri extends string = any> {
   name: Name;
@@ -61,7 +59,7 @@ export class Namespace<N extends string = string, Uri extends string = any> {
   }
 }
 
-export const escape = (
+export const escape = /* @__PURE__ */ (
   val: any,
   fallback: (obj: any) => Xml<'text'> & AttrValue = (_) => {
     throw new Error(`unable to escape ${typeof val}: '${String(val)}'`);
@@ -74,13 +72,13 @@ export const escape = (
     case 'bigint':
       return val.toString() as Xml<'text'> & AttrValue;
     case 'boolean':
-      return (val ? 'true' : 'false') as Xml<'text'> & AttrValue; // FIXME: check acceptability values
+      return (val ? 'true' : 'false') as Xml<'text'> & AttrValue;
     default: // object, function, symbol, undefined
       return fallback(val);
   }
 };
 
-const value = (val: any): AttrValue => escape(val);
+const value = /* @__PURE__ */ (val: any): AttrValue => escape(val);
 
 const replacements = {
   '&': '&amp;',
@@ -96,14 +94,19 @@ const replacements = {
  * @see https://www.w3.org/TR/REC-xml/#NT-Attribute
  * @see https://www.w3.org/TR/REC-xml/#NT-AttValue
  */
-export const escapeStr = (str: string): AttrValue & Xml<'text'> => {
+export const escapeStr = /* @__PURE__ */ (
+  str: string,
+): AttrValue & Xml<'text'> => {
   return str.replace(
     /[<>&'"]/g,
     (c) => (replacements as Record<string, string>)[c] ?? '',
   ) as AttrValue & Xml<'text'>;
 };
 
-export const attr = <K extends string = string, V extends string = string>(
+export const attr = /* @__PURE__ */ <
+  K extends string = string,
+  V extends string = string,
+>(
   key: NameStr<K> | AttrKey,
   val: AttValueStr<V> | AttrValue,
 ): Attr => `${key}="${val}"` as Attr;
@@ -122,15 +125,18 @@ export function attrs(
     })
     .filter((attr) => attr !== null);
 }
-export const empty = '' as Xml<any>;
-export const concat = <Schema extends string = any>(
+export const empty = /* @__PURE__ */ '' as Xml<any>;
+export const concat = /* @__PURE__ */ <Schema extends string = any>(
   ...x: Xml<Schema>[]
 ): Xml<Schema> => x.join(empty) as Xml<Schema>;
 
 export const tagFn =
-  <Schema extends string>(tagName: Tag<Schema>) =>
-  <Inner extends string>(attrs: Attr[], ...inner: ToXml<Inner>[]) =>
-    tag<Schema, Inner>(tagName, attrs, ...inner);
+  /* @__PURE__ */
+
+
+    <Schema extends string>(tagName: Tag<Schema>) =>
+    <Inner extends string>(attrs: Attr[], ...inner: ToXml<Inner>[]) =>
+      tag<Schema, Inner>(tagName, attrs, ...inner);
 
 /**
  * ToXml is the return type of XML-generating functions that need access to a mutable namespace registry.
@@ -138,23 +144,26 @@ export const tagFn =
 export type ToXml<T extends string> = (ns: NsRegistry) => Xml<T>;
 
 export const tag =
-  <Schema extends string, InnerSchemata extends string = any>(
-    tag: Tag<Schema>,
-    attrs: Attr[],
-    ...inner: Array<ToXml<InnerSchemata> | Xml<InnerSchemata>>
-  ): ToXml<Schema> =>
-  (ns: NsRegistry): Xml<Schema> => {
-    let _attrs = attrs.sort().join(' ');
-    if (_attrs) _attrs = ' ' + _attrs;
-    const content = concat(
-      ...inner.map((x) => (typeof x === 'function' ? x(ns) : x)),
-    );
-    const result =
-      content.length ?
-        `<${tag}${_attrs}>${content}</${tag}>`
-      : `<${tag}${_attrs}/>`;
-    return result as Xml<Schema>;
-  };
+  /* @__PURE__ */
+
+
+    <Schema extends string, InnerSchemata extends string = any>(
+      tag: Tag<Schema>,
+      attrs: Attr[],
+      ...inner: Array<ToXml<InnerSchemata> | Xml<InnerSchemata>>
+    ): ToXml<Schema> =>
+    (ns: NsRegistry): Xml<Schema> => {
+      let _attrs = attrs.sort().join(' ');
+      if (_attrs) _attrs = ' ' + _attrs;
+      const content = concat(
+        ...inner.map((x) => (typeof x === 'function' ? x(ns) : x)),
+      );
+      const result =
+        content.length ?
+          `<${tag}${_attrs}>${content}</${tag}>`
+        : `<${tag}${_attrs}/>`;
+      return result as Xml<Schema>;
+    };
 
 /** cache validated uris, names, xmlns declarations, tag constructors. */
 export class NsRegistry {
@@ -237,10 +246,3 @@ export class NsRegistry {
       .sort();
   }
 }
-
-// export const spliceXmlns = <Schema extends string>(
-//   xml: Xml<Schema>,
-//   ns: Namespaces,
-// ): Xml<Schema> => {
-//   return xml.replace('>', ` ${ns.xmlnsAttrs().join(' ')}>`) as Xml<Schema>;
-// };
