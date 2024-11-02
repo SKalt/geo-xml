@@ -106,7 +106,7 @@ const transformExample = async (file, pkgName) => {
       const xml = files[snapshotPath];
       return '.toBe(' + prettyString(xml, '  ', 0, 2) + '\n  )';
     })
-    .replaceAll('../src', pkgName + '/src');
+    .replaceAll('../src/index.js', pkgName);
   return result;
 };
 

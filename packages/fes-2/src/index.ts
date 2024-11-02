@@ -30,11 +30,18 @@ test('simple ID filter', () => {
 export const filter =
   /* @__PURE__ */
 
-    (...predicates: ToXml<typeof FES>[]): ToXml<typeof FES> =>
+
+    (
+      predicate: ToXml<typeof FES>,
+      ...predicates: ToXml<typeof FES>[]
+    ): ToXml<typeof FES> =>
     (namespaces: NsRegistry): Xml<typeof FES> => {
+      if (!predicates.length)
+        throw new Error('At least one predicate is required');
       return tag(
         namespaces.getOrInsert('fes' as Name, FES).qualify('Filter' as Name),
         [],
+        predicate,
         ...predicates,
       )(namespaces);
     };
