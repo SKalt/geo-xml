@@ -2,6 +2,7 @@
   "name": "geox",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "scripts": {
     "build": "echo \"Error: no build specified\" && exit 1",
     "lint": "echo \"Error: no lint specified\" && exit 1",

@@ -4,7 +4,8 @@
   "description": "A small library for constructing valid XML.",
   "main": "dist/index.cjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Warning: no tests specified\"",
+    "build": "vite build"
   },
   "devDependencies": {
     "prettier": "^3.3.3",

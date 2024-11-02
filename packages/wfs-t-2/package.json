@@ -2,13 +2,14 @@
   "name": "geojson-to-wfs-t-2",
   "version": "1.5.1",
   "description": "A library to convert geojson features to WFS-T-2.0 xml strings.",
-  "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
   "type": "module",
+  ".": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs",
+    "types": "./src/index.ts",
+    "default": "./dist/index.js"
+  },
   "scripts": {
-    "docs": "node ./make-docs.js",
-    "prebuild": "pnpm run docs",
     "build": "vite build",
     "test": "vitest"
   },
@@ -33,7 +34,6 @@
     "prettier": "^3.3.3",
     "typescript": "^5.6.3",
     "vite": "^5.4.10",
-    "vite-plugin-doctest": "^1.0.0",
     "vitest": "^1.6.0"
   },
   "dependencies": {
