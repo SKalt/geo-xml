@@ -19,7 +19,7 @@ import {
   tagFn,
   ToXml,
   Xml,
-} from 'packages/minimxml/src';
+} from 'minimxml/src';
 import {
   type Converter,
   CoordinateOrder,
@@ -79,7 +79,7 @@ type _Converter<Geom extends Geometry = Geometry> = (
  * @param  coords An array of coordinates,  [lng, lat, ...etc]
  * @return An array of coordinates in the correct order.
  */
-export const coordOrder = (
+export const coordOrder = /* @__PURE__ */ (
   order: CoordinateOrder,
 ): ((input: number[]) => number[]) => {
   switch (order) {
@@ -96,7 +96,8 @@ export const coordOrder = (
  * convert a (gml: Namespace, ...) => Gml function to a
  * (...) => (r?: NamespaceRegistry) => Gml function
  */
-export const withGmlNamespace = <Geom extends Geometry>(
+/* @__PURE__ */
+export const withGmlNamespace = /* @__PURE__ */ <Geom extends Geometry>(
   fn: _Converter<Geom>,
 ): Converter<Geom> => {
   return (geom: Geom, params: Params = {}): ToGml =>
@@ -108,14 +109,18 @@ export const withGmlNamespace = <Geom extends Geometry>(
     };
 };
 
+/* @__PURE__ */
 export const useCoords =
-  <Geom extends Exclude<Geometry, GeometryCollection>>(
-    fn: CoordinateConverter<Geom>,
-  ): _Converter<Geom> =>
-  (gml, geom: Geom, params) =>
-    fn(gml, geom.coordinates, params);
+  /* @__PURE__ */
 
-export const gmlPoint: CoordinateConverter<Point> = (
+    <Geom extends Exclude<Geometry, GeometryCollection>>(
+      fn: CoordinateConverter<Geom>,
+    ): _Converter<Geom> =>
+    (gml, geom: Geom, params) =>
+      fn(gml, geom.coordinates, params);
+
+/* @__PURE__ */
+export const gmlPoint: CoordinateConverter<Point> = /* @__PURE__ */ (
   gml: Namespace,
   coordinates: Point['coordinates'],
   params: Partial<
@@ -140,7 +145,7 @@ export const gmlPoint: CoordinateConverter<Point> = (
   );
 };
 
-export const gmlGeometry = (
+export const gmlGeometry = /* @__PURE__ */ (
   gml: Namespace,
   geom: Geometry,
   params: Params = {},
@@ -166,6 +171,7 @@ export const gmlGeometry = (
 };
 
 export const gmlGeometryCollection: _Converter<GeometryCollection> =
+  /* @__PURE__ */
   multi<GeometryCollection>(
     'MultiGeometry',
     'geometryMembers',
@@ -173,7 +179,7 @@ export const gmlGeometryCollection: _Converter<GeometryCollection> =
     gmlGeometry,
   );
 
-export const gmlLineString: CoordinateConverter<LineString> = (
+export const gmlLineString: CoordinateConverter<LineString> = /* @__PURE__ */ (
   gml: Namespace<any, typeof GML>,
   coordinates: LineString['coordinates'],
   params: Partial<
@@ -198,7 +204,7 @@ export const gmlLineString: CoordinateConverter<LineString> = (
     ),
   );
 };
-const gmlLineStringCoords = (
+const gmlLineStringCoords = /* @__PURE__ */ (
   coordinates: LineString['coordinates'],
   order: CoordinateOrder = CoordinateOrder.LON_LAT,
 ): Xml<'text'> => {
@@ -219,7 +225,7 @@ Construct a gml:LinearRing from an array of coordinates
 @param params optional parameters
 @returns a string containing gml representing the input geometry
 */
-export const gmlLinearRing: CoordinateConverter<LineString> = (
+export const gmlLinearRing: CoordinateConverter<LineString> = /* @__PURE__ */ (
   gml: Namespace<any, typeof GML>,
   coords: LineString['coordinates'],
   params: Partial<
@@ -245,7 +251,7 @@ export const gmlLinearRing: CoordinateConverter<LineString> = (
   );
 };
 
-export const gmlPolygon: CoordinateConverter<Polygon> = (
+export const gmlPolygon: CoordinateConverter<Polygon> = /* @__PURE__ */ (
   gml: Namespace<any, typeof GML>,
   coordinates: Polygon['coordinates'],
   params: Partial<IdParam & SrsNameParam> & Params = {},
@@ -264,14 +270,16 @@ export const gmlPolygon: CoordinateConverter<Polygon> = (
   );
 };
 
-export const gmlMultiPoint: _Converter<MultiPoint> = multi<MultiPoint>(
-  'MultiPoint',
-  'pointMembers', // see file://./../spec/geometryAggregates.xsd#pointMembers
-  'coordinates',
-  gmlPoint,
-);
+export const gmlMultiPoint: _Converter<MultiPoint> =
+  /* @__PURE__ */ multi<MultiPoint>(
+    'MultiPoint',
+    'pointMembers', // see file://./../spec/geometryAggregates.xsd#pointMembers
+    'coordinates',
+    gmlPoint,
+  );
 
 export const gmlMultiLineString: _Converter<MultiLineString> =
+  /* @__PURE__ */
   multi<MultiLineString>(
     'MultiCurve', // see file://./../spec/geometryAggregates.xsd#MultiCurveType
     'curveMembers', // see file://./../spec/geometryBasic0d1d.xsd#CurveArrayPropertyType
@@ -279,12 +287,13 @@ export const gmlMultiLineString: _Converter<MultiLineString> =
     gmlLineString,
   );
 
-export const gmlMultiPolygon: _Converter<MultiPolygon> = multi<MultiPolygon>(
-  'MultiSurface', // see file://./../spec/geometryAggregates.xsd#MultiSurface
-  'surfaceMembers',
-  'coordinates',
-  gmlPolygon,
-);
+export const gmlMultiPolygon: _Converter<MultiPolygon> =
+  /* @__PURE__ */ multi<MultiPolygon>(
+    'MultiSurface', // see file://./../spec/geometryAggregates.xsd#MultiSurface
+    'surfaceMembers',
+    'coordinates',
+    gmlPolygon,
+  );
 
 type ElementOf<T> = T extends Array<infer U> ? U : never;
 
@@ -330,6 +339,7 @@ export function multi<Collection extends MultiGeometry>(
   key: MemberKey<Collection>,
   renderMember: ConverterFn<Collection>,
 ): _Converter<Collection> {
+  /* @__PURE__ */
   return (
     gml: Namespace<any, typeof GML>,
     geom: Collection,
