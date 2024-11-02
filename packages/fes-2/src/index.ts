@@ -3,6 +3,7 @@ import { type Name, tag, NsRegistry, type Xml, ToXml } from 'minimxml/src';
 export const FES = 'http://www.opengis.net/fes/2.0';
 
 export * from './simple';
+/*!! use-example file://./../tests/idFilter.example.ts */
 /**
 Builds a filter from feature ids if one is not already input.
 @function
@@ -12,24 +13,27 @@ Builds a filter from feature ids if one is not already input.
 @return A `fes:Filter` element, or the input filter if it was a string.
 
 @example
-```ts @import.meta.vitest
-const { NsRegistry } = await import("minimxml/src");
-const ns = new NsRegistry();
+```ts
+import { test, expect } from 'vitest';
+import { NsRegistry } from 'minimxml/src';
+import { filter, idFilter } from 'geojson-to-gml-3/src';
 
-expect(filter(idFilter("my_layer.id"))(ns)).toBe(""
-  + `<fes:Filter>`
-  +   `<fes:ResourceId rid="my_layer.id"/>`
-  + `</fes:Filter>`
-);
+test('simple ID filter', () => {
+  expect(filter(idFilter('my_layer.id'))(new NsRegistry())).toBe(''
+    + `<fes:Filter>`
+    +   `<fes:ResourceId rid="my_layer.id"/>`
+    + `</fes:Filter>`
+  );
+});
 ```
  */
 export const filter =
-  (predicates: Xml<typeof FES>[] | Xml<typeof FES>): ToXml<typeof FES> =>
+  (...predicates: ToXml<typeof FES>[]): ToXml<typeof FES> =>
   (namespaces: NsRegistry): Xml<typeof FES> => {
     return tag(
       namespaces.getOrInsert('fes' as Name, FES).qualify('Filter' as Name),
       [],
-      ...(typeof predicates === 'string' ? [predicates] : predicates),
+      ...predicates,
     )(namespaces);
   };
 
