@@ -6,13 +6,13 @@ export default defineConfig({
   ...base,
 
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/packages/geojson-to-wfs-t-2',
+  cacheDir: '../../node_modules/.vite/packages/minimxml',
 
   build: {
     ...base.build,
     lib: {
       ...lib,
-      name: 'geojson-to-wfs-t-2',
+      name: 'minimxml',
     },
   },
 });
