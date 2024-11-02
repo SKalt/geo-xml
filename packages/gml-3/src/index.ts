@@ -125,12 +125,20 @@ Converts an input geojson Point geometry to GML
 @returns a GML string representing the input Point
 @example
 ```ts
-const pt: Point = { type: 'Point', coordinates: [102.0, 0.5] };
-expect(point(pt)()).toBe(""
-  + `<gml:Point>`
-  +   `<gml:pos>102 0.5</gml:pos>`
-  + `</gml:Point>`
-);
+import { type Point } from 'geojson';
+import { expect, test } from 'vitest';
+import { point } from 'geojson-to-gml-3/src';
+
+test('point', () => {
+  const geom: Point = { type: 'Point', coordinates: [102.0, 0.5] };
+  expect(point(geom)()).toBe(''
+    + `<gml:Point>`
+    +   `<gml:pos>`
+    +     `102 0.5`
+    +   `</gml:pos>`
+    + `</gml:Point>`
+  );
+});
 ```
 */
 export const point: Converter<Point> = /* @__PURE__ */ withGmlNamespace<Point>(
@@ -147,23 +155,28 @@ Convert an input geojson LineString geometry to gml
 @returns a string containing gml representing the input geometry
 @example
 ```ts
-const { NsRegistry } = await import('minimxml/src');
-const line: LineString = {
-  type: 'LineString',
-  coordinates: [
-    [102.0, 0.0],
-    [103.0, 1.0],
-    [104.0, 0.0],
-    [105.0, 1.0],
-  ],
-};
-expect(lineString(line)(new NsRegistry())).toBe(''
-  + `<gml:LineString>`
-  +   `<gml:posList>`
-  +    `102 0 103 1 104 0 105 1`
-  +   `</gml:posList>`
-  + `</gml:LineString>`
-);
+import { type LineString } from 'geojson';
+import { expect, test } from 'vitest';
+import { lineString } from 'geojson-to-gml-3/src';
+
+test('lineString', () => {
+  const geom: LineString = {
+    type: 'LineString',
+    coordinates: [
+      [102.0, 0.0],
+      [103.0, 1.0],
+      [104.0, 0.0],
+      [105.0, 1.0],
+    ],
+  };
+  expect(lineString(geom)()).toBe(''
+    + `<gml:LineString>`
+    +   `<gml:posList>`
+    +     `102 0 103 1 104 0 105 1`
+    +   `</gml:posList>`
+    + `</gml:LineString>`
+  );
+});
 ```
 */
 export const lineString: Converter<LineString> =
@@ -179,34 +192,35 @@ Converts an input geojson Polygon geometry to gml
 
 @example
 ```ts
-const { NsRegistry } = await import("minimxml/src")
-const poly: Polygon = {
-  type: 'Polygon',
-  coordinates: [
-    [
-      [100.0, 0.0],
-      [101.0, 0.0],
-      [101.0, 1.0],
-      [100.0, 1.0],
-      [100.0, 0.0],
+import { type Polygon } from 'geojson';
+import { expect, test } from 'vitest';
+import { polygon } from 'geojson-to-gml-3/src';
+
+test('polygon', () => {
+  const geom: Polygon = {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [100.0, 0.0],
+        [101.0, 0.0],
+        [101.0, 1.0],
+        [100.0, 1.0],
+        [100.0, 0.0],
+      ],
     ],
-  ],
-};
-expect(polygon(poly)(new NsRegistry())).toBe(
-    `<gml:Polygon>`
-  +   `<gml:exterior>`
-  +     `<gml:LinearRing>`
-  +       `<gml:posList>`
-  +          `100 0`
-  +         ` 101 0`
-  +         ` 101 1`
-  +         ` 100 1`
-  +          ` 100 0`
-  +       `</gml:posList>`
-  +      `</gml:LinearRing>`
-  +   `</gml:exterior>`
-  + `</gml:Polygon>`
-)
+  };
+  expect(polygon(geom)()).toBe(''
+    + `<gml:Polygon>`
+    +   `<gml:exterior>`
+    +     `<gml:LinearRing>`
+    +       `<gml:posList>`
+    +         `100 0 101 0 101 1 100 1 100 0`
+    +       `</gml:posList>`
+    +     `</gml:LinearRing>`
+    +   `</gml:exterior>`
+    + `</gml:Polygon>`
+  );
+});
 ```
 */
 export const polygon: Converter<Polygon> =
@@ -222,26 +236,35 @@ Converts an input geojson MultiPoint geometry to gml
 
 @example
 ```ts
-const { NsRegistry } = await import('minimxml/src');
-const multiPt: MultiPoint = {
-  type: 'MultiPoint',
-  coordinates: [
-    [100.0, 0.0],
-    [101.0, 1.0],
-  ],
-};
-expect(multiPoint(multiPt)(new NsRegistry())).toBe(''
-  + `<gml:MultiPoint>`
-  +   `<gml:pointMembers>`
-  +     `<gml:Point>`
-  +`<gml:pos>100 0</gml:pos>`
-  +`</gml:Point>`
-  +     `<gml:Point>`
-  +`<gml:pos>101 1</gml:pos>`
-  +`</gml:Point>`
-  +   `</gml:pointMembers>`
-  + `</gml:MultiPoint>`
-);
+import { type MultiPoint } from 'geojson';
+import { expect, test } from 'vitest';
+import { multiPoint } from 'geojson-to-gml-3/src';
+
+test('multiPoint', () => {
+  const geom: MultiPoint = {
+    type: 'MultiPoint',
+    coordinates: [
+      [100.0, 0.0],
+      [101.0, 1.0],
+    ],
+  };
+  expect(multiPoint(geom)()).toBe(''
+    + `<gml:MultiPoint>`
+    +   `<gml:pointMembers>`
+    +     `<gml:Point>`
+    +       `<gml:pos>`
+    +         `100 0`
+    +       `</gml:pos>`
+    +     `</gml:Point>`
+    +     `<gml:Point>`
+    +       `<gml:pos>`
+    +         `101 1`
+    +       `</gml:pos>`
+    +     `</gml:Point>`
+    +   `</gml:pointMembers>`
+    + `</gml:MultiPoint>`
+  );
+});
 ```
 */
 export const multiPoint: Converter<MultiPoint> =
@@ -258,26 +281,41 @@ Converts an input geojson MultiLineString geometry to gml
 
 @example
 ```ts
-const { NsRegistry } = await import('minimxml/src');
-const geom: MultiLineString = {
-  type: 'MultiLineString',
-  coordinates: [
-    [[100.0, 0.0], [101.0, 1.0]],
-    [[102.0, 2.0], [103.0, 3.0]],
-  ],
-};
-expect(multiLineString(geom)(new NsRegistry())).toBe(''
-  + `<gml:MultiCurve>`
-  +   `<gml:curveMembers>`
-  +     `<gml:LineString>`
-  +       `<gml:posList>100 0 101 1</gml:posList>`
-  +     `</gml:LineString>`
-  +     `<gml:LineString>`
-  +       `<gml:posList>102 2 103 3</gml:posList>`
-  +     `</gml:LineString>`
-  +   `</gml:curveMembers>`
-  + `</gml:MultiCurve>`
-);
+import { MultiLineString } from 'geojson';
+import { expect, test } from 'vitest';
+import { multiLineString } from 'geojson-to-gml-3/src';
+
+test('multiLineString', () => {
+  const geom: MultiLineString = {
+    type: 'MultiLineString',
+    coordinates: [
+      [
+        [100.0, 0.0],
+        [101.0, 1.0],
+      ],
+      [
+        [102.0, 2.0],
+        [103.0, 3.0],
+      ],
+    ],
+  };
+  expect(multiLineString(geom)()).toBe(''
+    + `<gml:MultiCurve>`
+    +   `<gml:curveMembers>`
+    +     `<gml:LineString>`
+    +       `<gml:posList>`
+    +         `100 0 101 1`
+    +       `</gml:posList>`
+    +     `</gml:LineString>`
+    +     `<gml:LineString>`
+    +       `<gml:posList>`
+    +         `102 2 103 3`
+    +       `</gml:posList>`
+    +     `</gml:LineString>`
+    +   `</gml:curveMembers>`
+    + `</gml:MultiCurve>`
+  );
+});
 ```
 */
 export const multiLineString: Converter<MultiLineString> =
@@ -293,63 +331,73 @@ Converts an input geojson `MultiPolygon` geometry to GML
 
 @example
 ```ts
-const { NsRegistry } = await import('minimxml/src');
-const geom: MultiPolygon = {type: 'MultiPolygon',
-  coordinates: [
-    [
+import { type MultiPolygon } from 'geojson';
+import { expect, test } from 'vitest';
+import { multiPolygon } from 'geojson-to-gml-3/src';
+
+test('multiPolygon', () => {
+  const geom: MultiPolygon = {
+    type: 'MultiPolygon',
+    coordinates: [
       [
-        [102.0, 2.0],
-        [103.0, 2.0],
-        [103.0, 3.0],
-        [102.0, 3.0],
-        [102.0, 2.0],
+        [
+          [102.0, 2.0],
+          [103.0, 2.0],
+          [103.0, 3.0],
+          [102.0, 3.0],
+          [102.0, 2.0],
+        ],
+      ],
+      [
+        [
+          [100.0, 0.0],
+          [101.0, 0.0],
+          [101.0, 1.0],
+          [100.0, 1.0],
+          [100.0, 0.0],
+        ],
+        [
+          [100.2, 0.2],
+          [100.8, 0.2],
+          [100.8, 0.8],
+          [100.2, 0.8],
+          [100.2, 0.2],
+        ],
       ],
     ],
-    [
-      [
-        [100.0, 0.0],
-        [101.0, 0.0],
-        [101.0, 1.0],
-        [100.0, 1.0],
-        [100.0, 0.0],
-      ],
-      [
-        [100.2, 0.2],
-        [100.8, 0.2],
-        [100.8, 0.8],
-        [100.2, 0.8],
-        [100.2, 0.2],
-      ],
-    ],
-  ],
-};
-expect(multiPolygon(geom)(new NsRegistry())).toBe(''
-  + `<gml:MultiSurface>`
-  +   `<gml:surfaceMembers>`
-  +     `<gml:Polygon>`
-  +      `<gml:exterior>`
-  +        `<gml:LinearRing>`
-  +           `<gml:posList>102 2 103 2 103 3 102 3 102 2</gml:posList>`
-  +         `</gml:LinearRing>`
-  +       `</gml:exterior>`
-  +     `</gml:Polygon>`
-  +     `<gml:Polygon>`
-  +       `<gml:exterior>`
-  +         `<gml:LinearRing>`
-  +           `<gml:posList>100 0 101 0 101 1 100 1 100 0</gml:posList>`
-  +          `</gml:LinearRing>`
-  +         `</gml:exterior>`
-  +       `<gml:interior>`
-  +        `<gml:LinearRing>`
-  +         `<gml:posList>`
-  +           `100.2 0.2 100.8 0.2 100.8 0.8 100.2 0.8 100.2 0.2`
-  +          `</gml:posList>`
-  +         `</gml:LinearRing>`
-  +        `</gml:interior>`
-  +     `</gml:Polygon>`
-  +   `</gml:surfaceMembers>`
-  + `</gml:MultiSurface>`
-)
+  };
+  expect(multiPolygon(geom)()).toBe(''
+    + `<gml:MultiSurface>`
+    +   `<gml:surfaceMembers>`
+    +     `<gml:Polygon>`
+    +       `<gml:exterior>`
+    +         `<gml:LinearRing>`
+    +           `<gml:posList>`
+    +             `102 2 103 2 103 3 102 3 102 2`
+    +           `</gml:posList>`
+    +         `</gml:LinearRing>`
+    +       `</gml:exterior>`
+    +     `</gml:Polygon>`
+    +     `<gml:Polygon>`
+    +       `<gml:exterior>`
+    +         `<gml:LinearRing>`
+    +           `<gml:posList>`
+    +             `100 0 101 0 101 1 100 1 100 0`
+    +           `</gml:posList>`
+    +         `</gml:LinearRing>`
+    +       `</gml:exterior>`
+    +       `<gml:interior>`
+    +         `<gml:LinearRing>`
+    +           `<gml:posList>`
+    +             `100.2 0.2 100.8 0.2 100.8 0.8 100.2 0.8 100.2 0.2`
+    +           `</gml:posList>`
+    +         `</gml:LinearRing>`
+    +       `</gml:interior>`
+    +     `</gml:Polygon>`
+    +   `</gml:surfaceMembers>`
+    + `</gml:MultiSurface>`
+  );
+});
 ```
 */
 export const multiPolygon =
@@ -402,3 +450,5 @@ expect(geometryCollection(geom)(new NsRegistry())).toBe(''
 export const geometryCollection: Converter<GeometryCollection> =
   /* @__PURE__ */
   withGmlNamespace<GeometryCollection>(gmlGeometryCollection);
+
+
