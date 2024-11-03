@@ -22,8 +22,8 @@
     "OGC",
     "gis"
   ],
-  "author": "Steven Kalt",
-  "license": "UNLICENSED",
+  "author": "Steven Kalt <support+geojson-to-wfs-t-2@kalt.cloud>",
+  "license": "see LICENSE.md",
   "repository": {
     "type": "git",
     "url": "https://github.com/skalt/geox.git",

@@ -16,8 +16,8 @@
     "build": "vite build"
   },
   "keywords": [],
-  "author": "",
-  "license": "UNLICENSED",
+  "author": "Steven Kalt <support+geojson-to-fes-2@kalt.cloud>",
+  "license": "SEE LICENSE IN ./LICENSE.md",
   "dependencies": {
     "geojson-to-gml-3": "workspace:geojson-to-gml-3",
     "minimxml": "workspace:minimxml"

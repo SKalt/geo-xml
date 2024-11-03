@@ -28,5 +28,5 @@
     "serialization"
   ],
   "author": "Steven Kalt <steven+minimxml@kalt.cloud>",
-  "license": "UNLICENSED"
+  "license": "MIT OR Apache-2.0"
 }
