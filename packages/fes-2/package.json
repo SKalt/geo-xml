@@ -11,6 +11,13 @@
       "default": "./dist/index.js"
     }
   },
+  "files": [
+    "licenses",
+    "LICENSE.md",
+    "src",
+    "dist/index.cjs",
+    "dist/index.js"
+  ],
   "scripts": {
     "test": "vitest",
     "build": "vite build"

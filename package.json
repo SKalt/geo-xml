@@ -2,6 +2,7 @@
   "name": "geox",
   "version": "1.0.0",
   "description": "",
+  "private": true,
   "type": "module",
   "scripts": {
     "build": "echo \"Error: no build specified\" && exit 1",
@@ -9,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "Steven Kalt <steven@kalt.cloud>",
+  "author": "Steven Kalt <support+geox@kalt.cloud>",
   "license": "UNLICENSED",
   "devDependencies": {
     "prettier": "^3.3.3",

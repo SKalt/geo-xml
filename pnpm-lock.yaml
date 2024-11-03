@@ -104,6 +104,9 @@ importers:
       '@types/geojson':
         specifier: ^7946.0.14
         version: 7946.0.14
+      libxml2-wasm:
+        specifier: ^0.4.1
+        version: 0.4.1
       prettier:
         specifier: ^3.3.3
         version: 3.3.3
@@ -1319,6 +1322,11 @@ packages:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
     dependencies:
       json-buffer: 3.0.1
+    dev: true
+
+  /libxml2-wasm@0.4.1:
+    resolution: {integrity: sha512-pci4oFTbf2ehBh28tKhfFA2Jgh/RqOzfzXgRAP3b0MoLDzKXFtftlEV6YBQjwIGvfEJZDfEglaKFOSmYJ4ZtbA==}
+    engines: {node: '>=16'}
     dev: true
 
   /local-pkg@0.5.0:

@@ -9,6 +9,15 @@
     "types": "./src/index.ts",
     "default": "./dist/index.js"
   },
+  "files": [
+    "src",
+    "dist/index.cjs",
+    "dist/index.js",
+    "LICENSE.md",
+    "licenses/PolyForm-Noncommercial-1.0.0.md",
+    "licenses/PolyForm-Free-Trial-1.0.0.md",
+    "README.md"
+  ],
   "scripts": {
     "build": "vite build",
     "test": "vitest"
@@ -31,14 +40,15 @@
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.14",
+    "libxml2-wasm": "^0.4.1",
     "prettier": "^3.3.3",
     "typescript": "^5.6.3",
     "vite": "^5.4.10",
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "geojson-to-gml-3": "workspace:geojson-to-gml-3",
     "geojson-to-fes-2": "workspace:geojson-to-fes-2",
+    "geojson-to-gml-3": "workspace:geojson-to-gml-3",
     "minimxml": "workspace:minimxml"
   }
 }

@@ -1,6 +1,6 @@
 # geo + xml
 
-A monorepo for co-development of geojson-to-gml-3 and geojson-to-wfs-t-2
+A monorepo for developing correct, lightweight, and ergonomic TypeScript libraries for writing various OGC XML encodings.
 
 <!-- TODO: link npm repos -->
 <!-- TODO: note about licenses
@@ -11,3 +11,4 @@ A monorepo for co-development of geojson-to-gml-3 and geojson-to-wfs-t-2
   TODO: centralize licenses
 -->
 <!-- TODO: ci/cd -->
+<!-- TODO: benchmarks -->

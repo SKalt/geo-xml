@@ -13,6 +13,12 @@
       "default": "./dist/index.js"
     }
   },
+  "files": [
+    "src",
+    "dist/index.cjs",
+    "dist/index.js",
+    "README.md"
+  ],
   "scripts": {
     "test": "echo \"Warning: no tests specified\"",
     "build": "vite build"
