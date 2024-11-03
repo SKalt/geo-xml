@@ -412,6 +412,8 @@ export const geometry: Converter<Geometry> =
   /* @__PURE__ */
   withGmlNamespace<Geometry>(gmlGeometry);
 
+export default geometry;
+
 /*!! use-example file://./../tests/geometryCollection.example.ts */
 /**
 Converts an input geojson GeometryCollection geometry to GML

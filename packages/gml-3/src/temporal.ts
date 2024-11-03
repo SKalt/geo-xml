@@ -1,3 +1,5 @@
+// ©️ Steven Kalt
+// Spdx-License-Identifier: PolyForm-Noncommercial-1.0.0 OR PolyForm-Free-Trial-1.0.0
 import { attrs, Name, NsRegistry, tag, Text } from 'minimxml';
 import { type ToGml, GML, type Gml } from './index.js';
 

@@ -1,3 +1,6 @@
+// ©️ Steven Kalt
+// Spdx-License-Identifier: PolyForm-Noncommercial-1.0.0 OR PolyForm-Free-Trial-1.0.0
+
 // TODO: rename to params.ts
 import { GeoJsonProperties, type Feature } from 'geojson';
 import type { Name, Xml, NameStr } from 'minimxml';

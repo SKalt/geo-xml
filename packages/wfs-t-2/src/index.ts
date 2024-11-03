@@ -1,3 +1,6 @@
+// ©️ Steven Kalt
+// Spdx-License-Identifier: PolyForm-Noncommercial-1.0.0 OR PolyForm-Free-Trial-1.0.0
+
 /* eslint-disable camelCase, new-cap */
 // some snake_case variables are used to imitate gml's notation.
 /**

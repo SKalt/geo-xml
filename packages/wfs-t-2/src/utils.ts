@@ -1,3 +1,6 @@
+// ©️ Steven Kalt
+// Spdx-License-Identifier: PolyForm-Noncommercial-1.0.0 OR PolyForm-Free-Trial-1.0.0
+
 /**
  * Common utilities for handling parameters for creation of WFS transactions.
  * @module utils

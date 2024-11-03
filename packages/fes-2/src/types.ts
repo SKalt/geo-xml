@@ -1,4 +1,5 @@
-import { Gml } from 'geojson-to-gml-3/src';
+// ©️ Steven Kalt
+// Spdx-License-Identifier: PolyForm-Noncommercial-1.0.0 OR PolyForm-Free-Trial-1.0.0
 
 export const enum FilterType {
   // binary comparisons

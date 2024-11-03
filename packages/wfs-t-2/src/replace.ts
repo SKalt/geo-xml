@@ -1,3 +1,6 @@
+// ©️ Steven Kalt
+// Spdx-License-Identifier: PolyForm-Noncommercial-1.0.0 OR PolyForm-Free-Trial-1.0.0
+
 import type { Features } from './index.js';
 import { InputFormatOpt, NsOpt, SrsNameOpt } from './typeDefs.js';
 import { asArray, translateFeatures } from './utils.js';

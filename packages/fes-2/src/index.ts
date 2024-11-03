@@ -1,3 +1,6 @@
+// ©️ Steven Kalt
+// Spdx-License-Identifier: PolyForm-Noncommercial-1.0.0 OR PolyForm-Free-Trial-1.0.0
+
 import { type Name, tag, NsRegistry, type Xml, type ToXml } from 'minimxml';
 // https://docs.ogc.org/is/09-026r2/09-026r2.html
 export const FES = 'http://www.opengis.net/fes/2.0';
@@ -36,8 +39,6 @@ export const filter =
       ...predicates: ToXml<typeof FES>[]
     ): ToXml<typeof FES> =>
     (namespaces: NsRegistry): Xml<typeof FES> => {
-      if (!predicates.length)
-        throw new Error('At least one predicate is required');
       return tag(
         namespaces.getOrInsert('fes' as Name, FES).qualify('Filter' as Name),
         [],
