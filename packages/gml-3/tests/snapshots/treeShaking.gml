@@ -1,0 +1,1 @@
+<gml:LineString><gml:posList>0 0 1 1</gml:posList></gml:LineString>

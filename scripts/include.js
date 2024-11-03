@@ -35,7 +35,8 @@ async function getPackageName(file) {
   }
 }
 
-const markerPattern = /^[/][*]!! use-example file:[/][/]([^ *]+)\s*[*][/]/;
+const markerPattern =
+  /^(([/][*])|(<!--))!! use-example file:[/][/](?<file>[^ *]+)\s*(([*][/])|-->)/;
 const startExample = /^```ts/;
 const endExample = /^```/;
 /**
@@ -59,7 +60,7 @@ async function getMarkers(file) {
       if (match) {
         // read the example from disk
         mode = 'seek-example';
-        currentExample = resolve(join(dir, match[1]));
+        currentExample = resolve(join(dir, (match.groups ?? {}).file));
       }
     } else if (mode === 'seek-example') {
       output += line;
