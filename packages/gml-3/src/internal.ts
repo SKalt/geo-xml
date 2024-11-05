@@ -276,7 +276,7 @@ export const gmlPolygon: CoordinateConverter<Polygon> = /* @__PURE__ */ (
 export const gmlMultiPoint: _Converter<MultiPoint> =
   /* @__PURE__ */ multi<MultiPoint>(
     'MultiPoint',
-    'pointMembers', // see file://./../spec/geometryAggregates.xsd#pointMembers
+    'pointMembers', // see file://./../../../spec/gml-3/geometryAggregates.xsd#pointMembers
     'coordinates',
     gmlPoint,
   );
@@ -284,15 +284,15 @@ export const gmlMultiPoint: _Converter<MultiPoint> =
 export const gmlMultiLineString: _Converter<MultiLineString> =
   /* @__PURE__ */
   multi<MultiLineString>(
-    'MultiCurve', // see file://./../spec/geometryAggregates.xsd#MultiCurveType
-    'curveMembers', // see file://./../spec/geometryBasic0d1d.xsd#CurveArrayPropertyType
+    'MultiCurve', // see file://./../../../spec/gml-3/geometryAggregates.xsd#MultiCurveType
+    'curveMembers', // see file://./../../../spec/gml-3/geometryBasic0d1d.xsd#CurveArrayPropertyType
     'coordinates',
     gmlLineString,
   );
 
 export const gmlMultiPolygon: _Converter<MultiPolygon> =
   /* @__PURE__ */ multi<MultiPolygon>(
-    'MultiSurface', // see file://./../spec/geometryAggregates.xsd#MultiSurface
+    'MultiSurface', // see file://./../../../spec/gml-3/geometryAggregates.xsd#MultiSurface
     'surfaceMembers',
     'coordinates',
     gmlPolygon,

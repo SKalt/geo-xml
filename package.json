@@ -1,7 +1,7 @@
 {
   "name": "geox",
   "version": "1.0.0",
-  "description": "",
+  "description": "a monorepo for geospatial typescript-to-XML libraries",
   "private": true,
   "type": "module",
   "scripts": {

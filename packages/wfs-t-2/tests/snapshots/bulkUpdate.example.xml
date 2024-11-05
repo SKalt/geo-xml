@@ -1,1 +1,0 @@
-<wfs:Update typeName="one_layer"><wfs:Property><wfs:ValueReference action="replace">unicorn</wfs:ValueReference><wfs:Value>rainbow</wfs:Value></wfs:Property><fes:Filter><fes:ResourceId rid="one_layer.123"/></fes:Filter></wfs:Update><wfs:Update typeName="other_layer"><fes:Filter><fes:ResourceId rid="other_layer.456"/></fes:Filter></wfs:Update>

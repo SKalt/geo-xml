@@ -10,6 +10,7 @@ words:
   - geometrycollection
   - geoserver
   - geospatial
+  - geox
   - gml
   - linebreak
   - lockfiles

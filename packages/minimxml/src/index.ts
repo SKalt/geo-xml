@@ -247,3 +247,10 @@ export class NsRegistry {
       .sort();
   }
 }
+
+export const spliceXmlns = /* @__PURE__ */ <S extends string>(
+  x: Xml<S>,
+  ns: NsRegistry,
+) => {
+  return x.replace(/>/, ` ${ns.xmlnsAttrs().join(' ')}>`);
+};
