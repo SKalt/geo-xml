@@ -1,6 +1,6 @@
 {
   "name": "geojson-to-gml-3",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "a package to translate geojson to GML 3.2.1",
   "type": "module",
   "main": "dist/index.cjs",
@@ -21,8 +21,8 @@
     "dist/index.js",
     "dist/index.d.ts",
     "LICENSE.md",
-    "license/PolyForm-Noncommercial-1.0.0.md",
-    "license/PolyForm-Noncommercial-1.0.0.md",
+    "licenses/PolyForm-Noncommercial-1.0.0.md",
+    "licenses/PolyForm-Free-Trial-1.0.0.md",
     "README.md"
   ],
   "repository": {
