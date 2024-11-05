@@ -1,4 +1,4 @@
-# geojson-to-wfs-t-2
+# `geojson-to-wfs-t-2`
 
 [![npm version](https://badge.fury.io/js/geojson-to-wfs-t-2.svg)](https://badge.fury.io/js/geojson-to-wfs-t-2)
 [![Build Status](https://img.shields.io/travis/SKalt/geojson-to-wfs-t-2/master.svg)](https://travis-ci.org/SKalt/geojson-to-wfs-t-2)
@@ -7,60 +7,101 @@ A library to create string Web Feature Service XML from geojson. As a string for
 
 ## Installation
 
-get the library by executing
+<details open><summary><code>pnpm</code></summary>
 
+```sh
+pnpm add geojson-to-wfs-t-2
 ```
+
+</details>
+
+<details><summary><code>npm</code></summary>
+
+```sh
 npm install geojson-to-wfs-t-2
 ```
 
-or
+</details>
 
-```
-git clone https://github.com/SKalt/geojson-to-wfs-t-2.git
-```
+<details><summary><code>yarn</code></summary>
 
-and `import/require`-ing es6 or transpiled es5 commonjs, UMD, or es modules from `geojson-to-wfs-t-2/dist/`.
+```sh
+yarn add geojson-to-wfs-t-2
+```
 
 ## Usage
 
+<!--!! use-example file://./tests/txn.example.ts -->
+
 ```ts
-import { transaction, insert } from 'geojson-to-wfs-t-2';
+import { test, expect } from 'vitest';
+import { insert, transaction } from 'geojson-to-wfs-t-2';
+import { point, geometry } from 'geojson-to-gml-3';
+import { Feature, Point } from 'geojson';
 
-const nullIsland = {
+const nsUri = 'http://example.com/myFeature' as const;
+
+test('empty transaction', () => {
+  const actual = transaction([], { srsName: 'EPSG:4326' })();
+  expect(actual).toBe(''
+    + `<wfs:Transaction service="WFS" srsName="EPSG:4326" version="2.0.2" xmlns:wfs="http://www.opengis.net/wfs/2.0"/>`
+  );
+});
+
+const f: Feature<Point, { a: number }> & { lyr: { id: string } } = {
   type: 'Feature',
-  properties: {place_name: 'null island'},
-  geometry: {
-    type: 'Point',
-    coordinates: [0, 0]
-  }
-  id: 'feature_id'
-}
-const params = {geometry_name: 'geom', layer: 'my_lyr', ns: 'my_namespace'};
+  geometry: { type: 'Point', coordinates: [0, 0] },
+  properties: { a: 1 },
+  lyr: { id: 'myLayer' },
+};
 
-// create a stringified transaction inserting null island
-wfs.Transaction(
-  wfs.Insert(nullIsland, params),
-  {
-    nsAssignments: {
-      my_namespace: 'https://example.com/namespace_defn.xsd'
-    }
-  }
-);
+test('use a specific geojson-to-gml converter', () => {
+  const actual = transaction([insert(f, { nsUri, convertGeom: point })])();
+  expect(actual).toBe(''
+    + `<wfs:Transaction service="WFS" version="2.0.2" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:myFeature="http://example.com/myFeature" xmlns:wfs="http://www.opengis.net/wfs/2.0">`
+    +   `<wfs:Insert>`
+    +     `<myFeature:myFeature>`
+    +       `<myFeature:geometry>`
+    +         `<gml:Point>`
+    +           `<gml:pos>`
+    +             `0 0`
+    +           `</gml:pos>`
+    +         `</gml:Point>`
+    +       `</myFeature:geometry>`
+    +       `<myFeature:a>`
+    +         `1`
+    +       `</myFeature:a>`
+    +     `</myFeature:myFeature>`
+    +   `</wfs:Insert>`
+    + `</wfs:Transaction>`
+  );
+});
 
-// create a stringified transaction updating null island's name
-wfs.Transaction(
-  wfs.Update({properties: {place_name: 'not Atlantis'}, id: nullIsland.id }),
-  {nsAssignments: ...}
-)
-// same deal, but deleting it
-wfs.Transaction(
-  wfs.Delete({id: nullIsland.id}, params),
-  {nsAssignments: ...}
-)
+test('when in doubt, use the default geojson-to-gml converter', () => {
+  const actual = transaction([insert(f, { nsUri, convertGeom: geometry })])();
+  expect(actual).toBe(''
+    + `<wfs:Transaction service="WFS" version="2.0.2" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:myFeature="http://example.com/myFeature" xmlns:wfs="http://www.opengis.net/wfs/2.0">`
+    +   `<wfs:Insert>`
+    +     `<myFeature:myFeature>`
+    +       `<myFeature:geometry>`
+    +         `<gml:Point>`
+    +           `<gml:pos>`
+    +             `0 0`
+    +           `</gml:pos>`
+    +         `</gml:Point>`
+    +       `</myFeature:geometry>`
+    +       `<myFeature:a>`
+    +         `1`
+    +       `</myFeature:a>`
+    +     `</myFeature:myFeature>`
+    +   `</wfs:Insert>`
+    + `</wfs:Transaction>`
+  );
+});
 ```
 
 #### Further notes:
 
 - to avoid conflicting with the `delete` keyword, the function to create a `wfs:Delete` is `delete_`.
 
-- While you should make sure to secure permissions to your data elsewhere (such as the [geoserver layer-level permissions](http://docs.geoserver.org/stable/en/user/security/layer.html)), avoiding importing dangerous actions `update` or `delete_` is a good idea.
+- While you should make sure to secure permissions to your data elsewhere (such as the [geoserver layer-level permissions](http://docs.geoserver.org/stable/en/user/security/layer.html)), avoiding importing potentially-dangerous actions `update` or `delete_` is a good idea.
