@@ -12,8 +12,9 @@
     }
   },
   "files": [
-    "licenses",
     "LICENSE.md",
+    "licenses/PolyForm-Noncommercial-1.0.0.md",
+    "licenses/PolyForm-Free-Trial-1.0.0.md",
     "src",
     "dist/index.cjs",
     "dist/index.js"
