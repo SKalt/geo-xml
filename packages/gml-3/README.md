@@ -1,7 +1,6 @@
 # geojson-to-gml-3
 
 ![NPM Version](https://img.shields.io/npm/v/geojson-to-gml-3)
-![Build Status](https://img.shields.io/travis/SKalt/geojson-to-gml-3.2.1/master.svg)
 
 <!-- TODO:  -->
 
@@ -47,6 +46,7 @@ it('can convert any geometry to GML', () => {
     type: 'Point',
     coordinates: [0, 0],
   };
+  // prettier-ignore
   expect(gml(nullIsland)()).toBe(''
     + `<gml:Point>`
     +   `<gml:pos>`

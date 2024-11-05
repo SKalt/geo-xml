@@ -7,6 +7,7 @@ const nsUri = 'http://example.com/myFeature' as const;
 
 test('empty transaction', () => {
   const actual = transaction([], { srsName: 'EPSG:4326' })();
+  // prettier-ignore
   expect(actual).toMatchFileSnapshot('./snapshots/txn.empty.xml');
 });
 
@@ -19,10 +20,12 @@ const f: Feature<Point, { a: number }> & { lyr: { id: string } } = {
 
 test('use a specific geojson-to-gml converter', () => {
   const actual = transaction([insert(f, { nsUri, convertGeom: point })])();
+  // prettier-ignore
   expect(actual).toMatchFileSnapshot('./snapshots/txn.insert.point.xml');
 });
 
 test('when in doubt, use the default geojson-to-gml converter', () => {
   const actual = transaction([insert(f, { nsUri, convertGeom: geometry })])();
+  // prettier-ignore
   expect(actual).toMatchFileSnapshot('./snapshots/txn.insert.default.xml');
 });

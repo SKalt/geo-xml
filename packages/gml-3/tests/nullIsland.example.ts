@@ -7,5 +7,6 @@ it('can convert any geometry to GML', () => {
     type: 'Point',
     coordinates: [0, 0],
   };
+  // prettier-ignore
   expect(gml(nullIsland)()).toMatchFileSnapshot('./snapshots/nullIsland.gml');
 });
