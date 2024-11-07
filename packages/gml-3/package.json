@@ -44,7 +44,7 @@
   "author": "Steven Kalt",
   "license": "SEE LICENSE IN ./LICENSE.md",
   "dependencies": {
-    "minimxml": "workspace:minimxml"
+    "minimxml": "workspace:../minimxml"
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.14",

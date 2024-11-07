@@ -27,10 +27,10 @@ importers:
   packages/fes-2:
     dependencies:
       geojson-to-gml-3:
-        specifier: workspace:geojson-to-gml-3
+        specifier: workspace:../gml-3
         version: link:../gml-3
       minimxml:
-        specifier: workspace:minimxml
+        specifier: workspace:../minimxml
         version: link:../minimxml
     devDependencies:
       '@types/geojson':
@@ -52,7 +52,7 @@ importers:
   packages/gml-3:
     dependencies:
       minimxml:
-        specifier: workspace:minimxml
+        specifier: workspace:../minimxml
         version: link:../minimxml
     devDependencies:
       '@types/geojson':
@@ -95,13 +95,13 @@ importers:
   packages/wfs-t-2:
     dependencies:
       geojson-to-fes-2:
-        specifier: workspace:geojson-to-fes-2
+        specifier: workspace:../fes-2
         version: link:../fes-2
       geojson-to-gml-3:
-        specifier: workspace:geojson-to-gml-3
+        specifier: workspace:../gml-3
         version: link:../gml-3
       minimxml:
-        specifier: workspace:minimxml
+        specifier: workspace:../minimxml
         version: link:../minimxml
     devDependencies:
       '@types/geojson':

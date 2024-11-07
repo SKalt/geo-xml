@@ -27,8 +27,8 @@
   "author": "Steven Kalt <support+geo-xml.fes-2@kalt.cloud>",
   "license": "SEE LICENSE IN ./LICENSE.md",
   "dependencies": {
-    "geojson-to-gml-3": "workspace:geojson-to-gml-3",
-    "minimxml": "workspace:minimxml"
+    "geojson-to-gml-3": "workspace:../gml-3",
+    "minimxml": "workspace:../minimxml"
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.14",
