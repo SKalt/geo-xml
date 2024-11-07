@@ -1,7 +1,7 @@
 {
-  "name": "geojson-to-fes-2",
+  "name": "@geo-xml/fes-2",
   "version": "1.0.0",
-  "description": "TODO",
+  "description": "A correct, lightweight for constructing valid OGC `fes:Filter` XML.",
   "type": "module",
   "exports": {
     ".": {
@@ -24,7 +24,7 @@
     "build": "vite build"
   },
   "keywords": [],
-  "author": "Steven Kalt <support+geojson-to-fes-2@kalt.cloud>",
+  "author": "Steven Kalt <support+geo-xml.fes-2@kalt.cloud>",
   "license": "SEE LICENSE IN ./LICENSE.md",
   "dependencies": {
     "geojson-to-gml-3": "workspace:geojson-to-gml-3",

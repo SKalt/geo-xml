@@ -23,7 +23,7 @@ The `_` suffix is added to avoid conflict with the `delete` keyword.
 @param namespaces a mutable object collecting XML namespace declarations.
 @example
 ```ts
-import { delete_, transaction } from 'geojson-to-wfs-t-2';
+import { delete_, transaction } from '@geo-xml/wfs-t-2';
 import { filter, idFilter } from 'geojson-to-fes-2';
 import { test, expect } from 'vitest';
 

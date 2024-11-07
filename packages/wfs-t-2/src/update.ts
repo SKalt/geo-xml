@@ -76,7 +76,7 @@ type Input = {
 @example
 ```ts
 import { filter, idFilter } from 'geojson-to-fes-2';
-import { update } from '../src/update.js';
+import { update } from '@geo-xml/wfs-t-2';
 import { test, expect } from 'vitest';
 import { NsRegistry } from 'minimxml';
 

@@ -34,7 +34,7 @@ yarn add geojson-to-wfs-t-2
 
 ```ts
 import { test, expect } from 'vitest';
-import { insert, transaction } from 'geojson-to-wfs-t-2';
+import { insert, transaction } from '@geo-xml/wfs-t-2';
 import { point, geometry } from 'geojson-to-gml-3';
 import { Feature, Point } from 'geojson';
 

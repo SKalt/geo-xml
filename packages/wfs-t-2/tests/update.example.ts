@@ -1,5 +1,5 @@
 import { filter, idFilter } from 'geojson-to-fes-2';
-import { update } from '../src/update.js';
+import { update } from '../src/index.js';
 import { test, expect } from 'vitest';
 import { NsRegistry } from 'minimxml';
 

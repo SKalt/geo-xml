@@ -1,6 +1,6 @@
 import { NsRegistry } from 'minimxml';
 import { filter, idFilter } from 'geojson-to-fes-2';
-import { replace } from '../src/replace.js';
+import { replace } from '../src/index.js';
 import { Feature } from 'geojson';
 import { test, expect } from 'vitest';
 

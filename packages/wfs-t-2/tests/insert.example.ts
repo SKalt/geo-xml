@@ -1,6 +1,6 @@
 import { NsRegistry } from 'minimxml';
 import { type Feature } from 'geojson';
-import { insert } from '../src/insert.js';
+import { insert } from '../src/index.js';
 import { test, expect } from 'vitest';
 
 test('inserting a feature', () => {

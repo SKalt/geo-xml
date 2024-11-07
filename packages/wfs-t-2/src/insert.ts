@@ -36,7 +36,7 @@ inputFormat, srsName, handle for the wfs:Insert tag.
 ```ts
 import { NsRegistry } from 'minimxml';
 import { type Feature } from 'geojson';
-import { insert } from '../src/insert.js';
+import { insert } from '@geo-xml/wfs-t-2';
 import { test, expect } from 'vitest';
 
 test('inserting a feature', () => {

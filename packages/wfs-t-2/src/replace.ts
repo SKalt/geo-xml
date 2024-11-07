@@ -32,7 +32,7 @@ replace one or more entire features.
 ```ts
 import { NsRegistry } from 'minimxml';
 import { filter, idFilter } from 'geojson-to-fes-2';
-import { replace } from '../src/replace.js';
+import { replace } from '@geo-xml/wfs-t-2';
 import { Feature } from 'geojson';
 import { test, expect } from 'vitest';
 
