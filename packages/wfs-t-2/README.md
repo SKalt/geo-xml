@@ -1,15 +1,15 @@
-# `geojson-to-wfs-t-2`
+# `@geo-xml/wfs-t-2`
 
-![NPM Version](https://img.shields.io/npm/v/geojson-to-wfs-t-2)
+![NPM Version](https://img.shields.io/npm/v/@geo-xml/wfs-t-2)
 
-A library to create string Web Feature Service XML from geojson. As a string formatting library, `geojson-to-wfs-t-2` has only one dependency and will work in any environment.
+A library to create string Web Feature Service XML from geojson. As a string formatting library, `@geo-xml/wfs-t-2` has only one dependency and will work in any environment.
 
 ## Installation
 
 <details open><summary><code>pnpm</code></summary>
 
 ```sh
-pnpm add geojson-to-wfs-t-2
+pnpm add @geo-xml/wfs-t-2
 ```
 
 </details>
@@ -17,7 +17,7 @@ pnpm add geojson-to-wfs-t-2
 <details><summary><code>npm</code></summary>
 
 ```sh
-npm install geojson-to-wfs-t-2
+npm install @geo-xml/wfs-t-2
 ```
 
 </details>
@@ -25,8 +25,10 @@ npm install geojson-to-wfs-t-2
 <details><summary><code>yarn</code></summary>
 
 ```sh
-yarn add geojson-to-wfs-t-2
+yarn add @geo-xml/wfs-t-2
 ```
+
+</details>
 
 ## Usage
 
