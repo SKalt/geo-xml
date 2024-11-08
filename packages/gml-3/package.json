@@ -27,7 +27,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/skalt/geox.git",
+    "url": "https://github.com/skalt/geo-xml.git",
     "directory": "packages/geojson-to-gml-3"
   },
   "scripts": {

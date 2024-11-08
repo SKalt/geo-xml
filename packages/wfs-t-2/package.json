@@ -35,7 +35,7 @@
   "license": "see LICENSE.md",
   "repository": {
     "type": "git",
-    "url": "https://github.com/skalt/geox.git",
+    "url": "https://github.com/skalt/geo-xml.git",
     "directory": "packages/geojson-to-wfs-t-2"
   },
   "devDependencies": {
