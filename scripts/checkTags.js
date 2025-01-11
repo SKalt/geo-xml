@@ -1,3 +1,7 @@
+/**
+ * Check that all tags on the current commit are named like `package/vN.N.N`, and
+ * that `N.N.N` corresponds to the version in that package's `package.json`.
+ */
 import fs from 'node:fs/promises';
 import { promisify } from 'util';
 import { exec as _exec } from 'node:child_process';
@@ -14,9 +18,9 @@ const tags = await exec('git --no-pager tag --points-at HEAD')
       .map((t) => t.trim())
       .filter(Boolean),
   );
-console.log({ tags });
 const tagMap = {
   gml: 'gml-3',
+  // TODO: handle GML-2?
   wfs: 'wfs-t-2',
   xml: 'minimxml',
   fes: 'fes-2',
@@ -42,6 +46,9 @@ for (let tag of tags) {
       new Error(`tag ${tag} does not match version ${version} in ${path}`),
     );
   }
+}
+if (tags.length && process.env.GITHUB_OUTPUT) {
+  console.log(`should_release=true`);
 }
 errors.forEach(console.error);
 if (errors.length) {
