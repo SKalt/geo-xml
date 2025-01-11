@@ -18,8 +18,8 @@ Builds a filter from feature ids if one is not already input.
 @example
 ```ts
 import { test, expect } from 'vitest';
-import { NsRegistry } from 'minimxml/src';
-import { filter, idFilter } from 'geojson-to-fes-2/src';
+import { NsRegistry } from 'minimxml';
+import { filter, idFilter } from '@geo-xml/fes-2';
 
 test('simple ID filter', () => {
   expect(filter(idFilter('my_layer.id'))(new NsRegistry())).toBe(''

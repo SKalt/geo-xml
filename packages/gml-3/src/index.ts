@@ -127,7 +127,7 @@ Converts an input geojson Point geometry to GML
 ```ts
 import { type Point } from 'geojson';
 import { expect, test } from 'vitest';
-import { point } from 'geojson-to-gml-3/src';
+import { point } from 'geojson-to-gml-3';
 
 test('point', () => {
   const geom: Point = { type: 'Point', coordinates: [102.0, 0.5] };
@@ -157,7 +157,7 @@ Convert an input geojson LineString geometry to gml
 ```ts
 import { type LineString } from 'geojson';
 import { expect, test } from 'vitest';
-import { lineString } from 'geojson-to-gml-3/src';
+import { lineString } from 'geojson-to-gml-3';
 
 test('lineString', () => {
   const geom: LineString = {
@@ -194,7 +194,7 @@ Converts an input geojson Polygon geometry to gml
 ```ts
 import { type Polygon } from 'geojson';
 import { expect, test } from 'vitest';
-import { polygon } from 'geojson-to-gml-3/src';
+import { polygon } from 'geojson-to-gml-3';
 
 test('polygon', () => {
   const geom: Polygon = {
@@ -238,7 +238,7 @@ Converts an input geojson MultiPoint geometry to gml
 ```ts
 import { type MultiPoint } from 'geojson';
 import { expect, test } from 'vitest';
-import { multiPoint } from 'geojson-to-gml-3/src';
+import { multiPoint } from 'geojson-to-gml-3';
 
 test('multiPoint', () => {
   const geom: MultiPoint = {
@@ -283,7 +283,7 @@ Converts an input geojson MultiLineString geometry to gml
 ```ts
 import { MultiLineString } from 'geojson';
 import { expect, test } from 'vitest';
-import { multiLineString } from 'geojson-to-gml-3/src';
+import { multiLineString } from '../src';
 
 test('multiLineString', () => {
   const geom: MultiLineString = {
@@ -333,7 +333,8 @@ Converts an input geojson `MultiPolygon` geometry to GML
 ```ts
 import { type MultiPolygon } from 'geojson';
 import { expect, test } from 'vitest';
-import { multiPolygon } from 'geojson-to-gml-3/src';
+import { multiPolygon } from 'geojson-to-gml-3';
+import { point } from 'geojson-to-gml-3';
 
 test('multiPolygon', () => {
   const geom: MultiPolygon = {
@@ -423,31 +424,41 @@ Converts an input geojson GeometryCollection geometry to GML
 @returns a string containing GML representing the input geometry\
 @example
 ```ts
-const { NsRegistry } = await import('minimxml/src');
-const geom: GeometryCollection = {
-  type: 'GeometryCollection',
-  geometries: [
-    { type: 'Point', coordinates: [100.0, 0.0] },
-    {
-      type: 'LineString',
-      coordinates: [
-        [101.0, 0.0],
-        [102.0, 1.0],
-      ],
-    },
-  ],
-};
+import { type GeometryCollection } from 'geojson';
+import { expect, test } from 'vitest';
+import { geometryCollection } from 'geojson-to-gml-3';
 
-expect(geometryCollection(geom)(new NsRegistry())).toBe(''
-  + `<gml:MultiGeometry>`
-  +  `<gml:geometryMembers>`
-  +    `<gml:Point><gml:pos>100 0</gml:pos></gml:Point>`
-  +    `<gml:LineString>`
-  +     `<gml:posList>101 0 102 1</gml:posList>`
-  +    `</gml:LineString>`
-  +   `</gml:geometryMembers>`
-  + `</gml:MultiGeometry>`
-)
+test('geometryCollection', () => {
+  const geom: GeometryCollection = {
+    type: 'GeometryCollection',
+    geometries: [
+      { type: 'Point', coordinates: [100.0, 0.0] },
+      {
+        type: 'LineString',
+        coordinates: [
+          [101.0, 0.0],
+          [102.0, 1.0],
+        ],
+      },
+    ],
+  };
+  expect(geometryCollection(geom)()).toBe(''
+    + `<gml:MultiGeometry>`
+    +   `<gml:geometryMembers>`
+    +     `<gml:Point>`
+    +       `<gml:pos>`
+    +         `100 0`
+    +       `</gml:pos>`
+    +     `</gml:Point>`
+    +     `<gml:LineString>`
+    +       `<gml:posList>`
+    +         `101 0 102 1`
+    +       `</gml:posList>`
+    +     `</gml:LineString>`
+    +   `</gml:geometryMembers>`
+    + `</gml:MultiGeometry>`
+  );
+});
 ```
 */
 export const geometryCollection: Converter<GeometryCollection> =

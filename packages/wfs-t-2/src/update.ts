@@ -17,7 +17,7 @@ import {
 
 import { WFS, XSI } from './xml.js';
 import { GML } from 'geojson-to-gml-3';
-import { FES } from 'geojson-to-fes-2';
+import { FES } from '@geo-xml/fes-2';
 
 /**
 See {@link http://docs.opengeospatial.org/is/09-025r2/09-025r2.html#286 | OGC 09-025r2 § 15.2.5.2.1}.
@@ -75,7 +75,7 @@ type Input = {
 @returns a closure that takes a `NsRegistry` tp produce a final string `wfs:Update` action.
 @example
 ```ts
-import { filter, idFilter } from 'geojson-to-fes-2';
+import { filter, idFilter } from '@geo-xml/fes-2';
 import { update } from '@geo-xml/wfs-t-2';
 import { test, expect } from 'vitest';
 import { NsRegistry } from 'minimxml';

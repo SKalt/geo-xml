@@ -47,7 +47,7 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "geojson-to-fes-2": "workspace:../fes-2",
+    "@geo-xml/fes-2": "workspace:../fes-2",
     "geojson-to-gml-3": "workspace:../gml-3",
     "minimxml": "workspace:../minimxml"
   }

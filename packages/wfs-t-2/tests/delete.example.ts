@@ -1,5 +1,5 @@
 import { delete_, transaction } from '../src/index.js';
-import { filter, idFilter } from 'geojson-to-fes-2';
+import { filter, idFilter } from '@geo-xml/fes-2';
 import { test, expect } from 'vitest';
 
 const layer: string = 'myLayer';

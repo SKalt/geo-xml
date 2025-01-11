@@ -1,4 +1,4 @@
-import { filter, idFilter } from 'geojson-to-fes-2';
+import { filter, idFilter } from '@geo-xml/fes-2';
 import { update } from '../src/index.js';
 import { test, expect } from 'vitest';
 import { NsRegistry } from 'minimxml';

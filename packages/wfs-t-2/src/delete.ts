@@ -10,7 +10,7 @@ import {
   type ToXml,
 } from 'minimxml';
 import { WFS } from './xml.js';
-import { FES } from 'geojson-to-fes-2';
+import { FES } from '@geo-xml/fes-2';
 
 /*!! use-example file://./../tests/delete.example.ts */
 /**
@@ -24,7 +24,7 @@ The `_` suffix is added to avoid conflict with the `delete` keyword.
 @example
 ```ts
 import { delete_, transaction } from '@geo-xml/wfs-t-2';
-import { filter, idFilter } from 'geojson-to-fes-2';
+import { filter, idFilter } from '@geo-xml/fes-2';
 import { test, expect } from 'vitest';
 
 const layer: string = 'myLayer';

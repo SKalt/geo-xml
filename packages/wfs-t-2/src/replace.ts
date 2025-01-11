@@ -17,7 +17,7 @@ import type { GeoJsonProperties, Geometry } from 'geojson';
 import { WFS } from './xml.js';
 import { type Converter } from 'geojson-to-gml-3';
 import type { AttValueStr } from 'minimxml';
-import { FES } from 'geojson-to-fes-2';
+import { FES } from '@geo-xml/fes-2';
 
 /*!! use-example file://./../tests/replace.example.ts */
 /**
@@ -31,7 +31,7 @@ replace one or more entire features.
 @example
 ```ts
 import { NsRegistry } from 'minimxml';
-import { filter, idFilter } from 'geojson-to-fes-2';
+import { filter, idFilter } from '@geo-xml/fes-2';
 import { replace } from '@geo-xml/wfs-t-2';
 import { Feature } from 'geojson';
 import { test, expect } from 'vitest';
