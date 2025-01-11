@@ -1,6 +1,6 @@
 {
   "name": "@geo-xml/fes-2",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A correct, lightweight for constructing valid OGC `fes:Filter` XML.",
   "type": "module",
   "exports": {

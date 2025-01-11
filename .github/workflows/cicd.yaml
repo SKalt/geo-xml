@@ -45,11 +45,13 @@ jobs:
       - name: should release?
         id: should-release
         run: |-
-          tags="$(git --no-pager tag --points-at HEAD)"
-          [ -n "${tags:-}" ] && echo "should_release=true" >> "$GITHUB_OUTPUT"
+          tags=""; tags="$(git --no-pager tag --points-at HEAD)"
+          if [ -n "${tags:-}" ]; then
+            echo "should_release=true" | tee -a "$GITHUB_OUTPUT";
+          fi
   publish:
     environment: release # <- this requires at least one tag like */v*
-    if: github.ref_name != 'main' && needs.ci.outputs.should_release == 'true'
+    if: needs.ci.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     needs: [ci]
     steps:

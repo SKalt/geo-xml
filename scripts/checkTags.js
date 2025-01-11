@@ -27,29 +27,32 @@ const tagMap = {
 };
 const errors = [];
 const pattern = /(?<prefix>[a-z-]{3,})\/v\d+.\d+.\d+(-.+)?/;
-for (let tag of tags) {
-  const match = pattern.exec(tag);
-  if (!match) {
-    errors.push(new Error(`tag does not match pattern: ${pattern.source}`));
-    continue;
-  }
-  const prefix = match.groups['prefix'];
-  const pkgName = tagMap[prefix];
-  if (!pkgName) {
-    errors.push(new Error(`${prefix}`));
-    continue;
-  }
-  const path = `./packages/${pkgName}/package.json`;
-  const { version } = JSON.parse(fs.readFileSync(path, { encoding: 'utf8' }));
-  if (version != tag.split('/v')[1]) {
-    errors.push(
-      new Error(`tag ${tag} does not match version ${version} in ${path}`),
+await Promise.all(
+  tags.map(async (tag) => {
+    const match = pattern.exec(tag);
+    if (!match) {
+      errors.push(new Error(`tag does not match pattern: ${pattern.source}`));
+      return;
+    }
+    const prefix = match.groups['prefix'];
+    const pkgName = tagMap[prefix];
+    if (!pkgName) {
+      errors.push(new Error(`${prefix}`));
+      return;
+    }
+    const path = `./packages/${pkgName}/package.json`;
+    const { version } = JSON.parse(
+      await fs.readFile(path, { encoding: 'utf8' }),
     );
-  }
-}
-if (tags.length && process.env.GITHUB_OUTPUT) {
-  console.log(`should_release=true`);
-}
+    if (version != tag.split('/v')[1]) {
+      errors.push(
+        new Error(`tag ${tag} does not match version ${version} in ${path}`),
+      );
+    }
+  }),
+);
+
+console.log({ tags });
 errors.forEach(console.error);
 if (errors.length) {
   throw 'fail';
