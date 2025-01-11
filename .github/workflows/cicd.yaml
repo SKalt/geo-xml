@@ -1,0 +1,66 @@
+name: 'CI/CD'
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - fes/v*
+      - gml/v*
+      - wfs/v*
+      - xml/v*
+  pull_request:
+    branches:
+      - main
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+      - name: set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22 # LTS as of 2025-01
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: check examples up-to-date
+        run: |-
+          ./scripts/update_examples.sh
+          git --no-pager diff --exit-code # fail if there's any diff
+      - name: Run tests
+        run: make test
+  publish:
+    environment: release # <- this requires at least one tag like */v*
+    if: github.ref_name != 'main'
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+      - name: set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22 # LTS as of 2025-01
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - run: node ./scripts/checkTags.js
+      - name: publish
+        run: pnpm publish --recursive --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+        # see also: https://github.blog/security/supply-chain-security/introducing-npm-package-provenance/
