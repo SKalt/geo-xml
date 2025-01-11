@@ -68,7 +68,7 @@ jobs:
           node-version: 22 # LTS as of 2025-01
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
       - run: node ./scripts/checkTags.js
       - name: publish
         run: pnpm publish --recursive --provenance --access public

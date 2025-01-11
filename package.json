@@ -12,10 +12,10 @@
   "keywords": [],
   "author": "Steven Kalt <support+geo-xml@kalt.cloud>",
   "devDependencies": {
-    "prettier": "^3.3.3",
-    "typescript": "~5.5.2",
-    "vite": "^5.0.0",
-    "vitest": "^1.3.1",
-    "cspell": "^8.15.1"
+    "cspell": "^8.17.1",
+    "prettier": "^3.4.2",
+    "typescript": "~5.5.4",
+    "vite": "^5.4.11",
+    "vitest": "^1.6.0"
   }
 }
