@@ -12,3 +12,6 @@ test: build
 	cd packages/gml-3 && pnpm test -- --run
 	cd packages/fes-2 && pnpm test -- --run
 	cd packages/wfs-t-2 && pnpm test -- --run
+
+update-examples:
+	./scripts/update_examples.sh
