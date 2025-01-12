@@ -1,6 +1,6 @@
 # geo + xml
 
-[![ci](https://github.com/SKalt/geo-xml/actions/workflows/ci.yaml/badge.svg)](https://github.com/SKalt/geo-xml/actions/workflows/ci.yaml)
+[![ci](https://github.com/SKalt/geo-xml/actions/workflows/cicd.yaml/badge.svg)](https://github.com/SKalt/geo-xml/actions/workflows/ci.yaml)
 
 A monorepo for developing correct, lightweight, and ergonomic TypeScript libraries for writing various OGC XML encodings.
 
