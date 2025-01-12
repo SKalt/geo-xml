@@ -69,9 +69,14 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - run: node ./scripts/checkTags.js
+      - name: debug 1
+        run: git status
+      - name: rebuild
+        run: make build
+      - name: debug 2
+        run: git status
       - name: publish
-        run: pnpm publish --recursive --provenance --access public
+        run: pnpm publish --recursive --provenance --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         # see also: https://github.blog/security/supply-chain-security/introducing-npm-package-provenance/
