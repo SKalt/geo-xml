@@ -69,14 +69,23 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: setup registry auth
+        run: |
+          echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc
       - name: debug 1
         run: git status
       - name: rebuild
         run: make build
       - name: debug 2
-        run: git status
+        run: |
+          git status
+          cat .npmrc
       - name: publish
-        run: pnpm publish --recursive --provenance --access public --no-git-checks
+        run: |
+          pnpm publish \
+            --recursive --provenance --no-git-checks \
+            --registry https://registry.npmjs.org/ \
+            --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         # see also: https://github.blog/security/supply-chain-security/introducing-npm-package-provenance/
