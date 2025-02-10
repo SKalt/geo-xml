@@ -44,7 +44,7 @@
     "prettier": "^3.3.3",
     "typescript": "^5.6.3",
     "vite": "^5.4.10",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.1"
   },
   "dependencies": {
     "@geo-xml/fes-2": "workspace:../fes-2",
